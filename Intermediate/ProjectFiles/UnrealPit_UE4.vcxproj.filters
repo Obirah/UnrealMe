@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<None Include="..\..\UnrealPit_UE4.uproject" />
+		<Filter Include="Source">
+			<UniqueIdentifier>{D556BA20-BAB9-406F-B2B9-D2F2F0934E37}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\UnrealPit_UE4.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<None Include="..\..\Source\UnrealPit_UE4Editor.Target.cs">
+			<Filter>Source</Filter>
+		</None >
+		<Filter Include="Config">
+			<UniqueIdentifier>{67F76047-9C5C-453D-8B30-3FFA7EC12127}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Config\DefaultEditor.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultEngine.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultGame.ini">
+			<Filter>Config</Filter>
+		</None >
+		<None Include="..\..\Config\DefaultInput.ini">
+			<Filter>Config</Filter>
+		</None >
+		<Filter Include="Source\UnrealPit_UE4">
+			<UniqueIdentifier>{261F0C98-6D3B-4D8D-A95C-C6D67255D79F}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\UnrealPit_UE4\UnrealPit_UE4.Build.cs">
+			<Filter>Source\UnrealPit_UE4</Filter>
+		</None >
+		<Filter Include="Source\UnrealPit_UE4\Private">
+			<UniqueIdentifier>{EB5F18F1-8471-469F-AFCF-7BFC41DAF9DE}</UniqueIdentifier>
+		</Filter>
+		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4.cpp">
+			<Filter>Source\UnrealPit_UE4\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4Character.cpp">
+			<Filter>Source\UnrealPit_UE4\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4GameMode.cpp">
+			<Filter>Source\UnrealPit_UE4\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4HUD.cpp">
+			<Filter>Source\UnrealPit_UE4\Private</Filter>
+		</ClCompile >
+		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4Projectile.cpp">
+			<Filter>Source\UnrealPit_UE4\Private</Filter>
+		</ClCompile >
+		<Filter Include="Source\UnrealPit_UE4\Public">
+			<UniqueIdentifier>{32225C58-0A6F-4912-986C-272BC4301BD1}</UniqueIdentifier>
+		</Filter>
+		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4.h">
+			<Filter>Source\UnrealPit_UE4\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4Character.h">
+			<Filter>Source\UnrealPit_UE4\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4GameMode.h">
+			<Filter>Source\UnrealPit_UE4\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4HUD.h">
+			<Filter>Source\UnrealPit_UE4\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4Projectile.h">
+			<Filter>Source\UnrealPit_UE4\Public</Filter>
+		</ClInclude >
+		<Filter Include="Source\UnrealPit_UE4\Resources">
+			<UniqueIdentifier>{F046AC58-0C24-4722-8CC1-E47CE0F7567B}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Source\UnrealPit_UE4\Resources\Windows">
+			<UniqueIdentifier>{081C3F05-2820-4BDF-A308-321327308F1E}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Source\UnrealPit_UE4\Resources\Windows\UnrealPit_UE4.ico">
+			<Filter>Source\UnrealPit_UE4\Resources\Windows</Filter>
+		</None >
+		<ResourceCompile Include="..\..\Source\UnrealPit_UE4\Resources\Windows\UnrealPit_UE4.rc">
+			<Filter>Source\UnrealPit_UE4\Resources\Windows</Filter>
+		</ResourceCompile >
+	</ItemGroup>
+</Project>
