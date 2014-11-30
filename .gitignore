@@ -3,6 +3,8 @@
 *.lo
 *.o
 *.obj
+*.exp
+*.pdb
 
 # Precompiled Headers
 *.gch
@@ -12,6 +14,7 @@
 *.so
 *.dylib
 *.dll
+!UnrealVRPNx64.dll
 
 # Fortran module files
 *.mod
@@ -22,7 +25,13 @@
 *.a
 *.lib
 
+# Log files
+*.log
+
 # Executables
 *.exe
 *.out
 *.app
+/Saved/
+/Build/
+/UnrealPit_UE4.sdf

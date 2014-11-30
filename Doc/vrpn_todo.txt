@@ -1,0 +1,11 @@
+- Klasse "Tracker", die für jeden zu initialisierenden Tracker instantiiert wird
+- jeder Tracker beinhaltet:
+	- Adresse
+	- Remote
+	- Callbacks
+	- Bone
+	
+- Client kennt Liste der Tracker, BonePosition wird weiterhin über Index abgerufen:
+	Index wird nicht mehr zum Zugriff auf BoneArray genutzt, sondern zum Zugriff auf Tracker-Array:
+		Tracker-Array gibt genau einen Tracker zurück, der genau einen Bone hat
+	

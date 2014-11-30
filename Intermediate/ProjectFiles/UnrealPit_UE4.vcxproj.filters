@@ -4,7 +4,7 @@
 	<ItemGroup>
 		<None Include="..\..\UnrealPit_UE4.uproject" />
 		<Filter Include="Source">
-			<UniqueIdentifier>{D556BA20-BAB9-406F-B2B9-D2F2F0934E37}</UniqueIdentifier>
+			<UniqueIdentifier>{2D39C244-8B78-4033-8DE6-47DD18C9FFED}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\UnrealPit_UE4.Target.cs">
 			<Filter>Source</Filter>
@@ -13,7 +13,7 @@
 			<Filter>Source</Filter>
 		</None >
 		<Filter Include="Config">
-			<UniqueIdentifier>{67F76047-9C5C-453D-8B30-3FFA7EC12127}</UniqueIdentifier>
+			<UniqueIdentifier>{C1CF9E22-EA3F-4A70-862C-F5F47ECE5C9C}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Config\DefaultEditor.ini">
 			<Filter>Config</Filter>
@@ -27,14 +27,50 @@
 		<None Include="..\..\Config\DefaultInput.ini">
 			<Filter>Config</Filter>
 		</None >
+		<None Include="..\..\Config\VRPN.ini">
+			<Filter>Config</Filter>
+		</None >
+		<Filter Include="Plugins">
+			<UniqueIdentifier>{F4171BB6-2467-4476-B12E-5489542FD5AA}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Plugins\VRPNClient">
+			<UniqueIdentifier>{AEBE4C8D-AAAB-45A0-8A94-5449F1F1471A}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Plugins\VRPNClient\Source">
+			<UniqueIdentifier>{F00D5D43-0096-436D-A078-5A0BE569AF61}</UniqueIdentifier>
+		</Filter>
+		<Filter Include="Plugins\VRPNClient\Source\VRPNClient">
+			<UniqueIdentifier>{09515ECE-EA6D-43C0-B13C-1CD97D1409C6}</UniqueIdentifier>
+		</Filter>
+		<None Include="..\..\Plugins\VRPNClient\Source\VRPNClient\VRPNClient.build.cs">
+			<Filter>Plugins\VRPNClient\Source\VRPNClient</Filter>
+		</None >
+		<Filter Include="Plugins\VRPNClient\Source\VRPNClient\Private">
+			<UniqueIdentifier>{9C9E20C5-BC46-460B-B12E-0EE3B0F0301B}</UniqueIdentifier>
+		</Filter>
+		<ClCompile Include="..\..\Plugins\VRPNClient\Source\VRPNClient\Private\VRPNClient.cpp">
+			<Filter>Plugins\VRPNClient\Source\VRPNClient\Private</Filter>
+		</ClCompile >
+		<Filter Include="Plugins\VRPNClient\Source\VRPNClient\Public">
+			<UniqueIdentifier>{1D41A423-1997-4197-9A9D-8B715DC658D4}</UniqueIdentifier>
+		</Filter>
+		<ClInclude Include="..\..\Plugins\VRPNClient\Source\VRPNClient\Public\VRPNClient.h">
+			<Filter>Plugins\VRPNClient\Source\VRPNClient\Public</Filter>
+		</ClInclude >
+		<ClInclude Include="..\..\Plugins\VRPNClient\Source\VRPNClient\Public\VRPNClientPrivatePCH.h">
+			<Filter>Plugins\VRPNClient\Source\VRPNClient\Public</Filter>
+		</ClInclude >
+		<None Include="..\..\Plugins\VRPNClient\VRPNClient.uplugin">
+			<Filter>Plugins\VRPNClient</Filter>
+		</None >
 		<Filter Include="Source\UnrealPit_UE4">
-			<UniqueIdentifier>{261F0C98-6D3B-4D8D-A95C-C6D67255D79F}</UniqueIdentifier>
+			<UniqueIdentifier>{1F22FC94-68AD-40D3-B534-00D23686D6FA}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\UnrealPit_UE4\UnrealPit_UE4.Build.cs">
 			<Filter>Source\UnrealPit_UE4</Filter>
 		</None >
 		<Filter Include="Source\UnrealPit_UE4\Private">
-			<UniqueIdentifier>{EB5F18F1-8471-469F-AFCF-7BFC41DAF9DE}</UniqueIdentifier>
+			<UniqueIdentifier>{7E2423D5-DAE2-486C-BE13-5E14F4325248}</UniqueIdentifier>
 		</Filter>
 		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4.cpp">
 			<Filter>Source\UnrealPit_UE4\Private</Filter>
@@ -51,8 +87,11 @@
 		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4Projectile.cpp">
 			<Filter>Source\UnrealPit_UE4\Private</Filter>
 		</ClCompile >
+		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4VRPN.cpp">
+			<Filter>Source\UnrealPit_UE4\Private</Filter>
+		</ClCompile >
 		<Filter Include="Source\UnrealPit_UE4\Public">
-			<UniqueIdentifier>{32225C58-0A6F-4912-986C-272BC4301BD1}</UniqueIdentifier>
+			<UniqueIdentifier>{7FA6C905-F49F-4561-AC21-AE6CE5929A00}</UniqueIdentifier>
 		</Filter>
 		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4.h">
 			<Filter>Source\UnrealPit_UE4\Public</Filter>
@@ -69,11 +108,14 @@
 		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4Projectile.h">
 			<Filter>Source\UnrealPit_UE4\Public</Filter>
 		</ClInclude >
+		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4VRPN.h">
+			<Filter>Source\UnrealPit_UE4\Public</Filter>
+		</ClInclude >
 		<Filter Include="Source\UnrealPit_UE4\Resources">
-			<UniqueIdentifier>{F046AC58-0C24-4722-8CC1-E47CE0F7567B}</UniqueIdentifier>
+			<UniqueIdentifier>{A849F80E-FFD6-416E-AB46-982F31C5FC0C}</UniqueIdentifier>
 		</Filter>
 		<Filter Include="Source\UnrealPit_UE4\Resources\Windows">
-			<UniqueIdentifier>{081C3F05-2820-4BDF-A308-321327308F1E}</UniqueIdentifier>
+			<UniqueIdentifier>{35A81525-7FA9-45E2-AD30-3653D18F4202}</UniqueIdentifier>
 		</Filter>
 		<None Include="..\..\Source\UnrealPit_UE4\Resources\Windows\UnrealPit_UE4.ico">
 			<Filter>Source\UnrealPit_UE4\Resources\Windows</Filter>

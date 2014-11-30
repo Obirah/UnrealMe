@@ -1,6 +1,7 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
+#include "UnrealPit_UE4VRPN.h"
 #include "UnrealPit_UE4Character.generated.h"
 
 UCLASS(config=Game)
@@ -39,6 +40,9 @@ class AUnrealPit_UE4Character : public ACharacter
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
+
+	UUnrealPit_UE4VRPN* tVRPNClient;
+	virtual void Tick(float aDeltaSeconds) override;
 
 protected:
 

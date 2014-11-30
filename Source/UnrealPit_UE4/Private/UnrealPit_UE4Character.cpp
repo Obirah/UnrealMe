@@ -38,6 +38,11 @@ AUnrealPit_UE4Character::AUnrealPit_UE4Character(const class FPostConstructIniti
 
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	AActor::SetActorTickEnabled(true);
+
+	tVRPNClient = NewObject<UUnrealPit_UE4VRPN>();
+	tVRPNClient->initializeTracker();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -140,3 +145,17 @@ void AUnrealPit_UE4Character::LookUpAtRate(float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+
+void AUnrealPit_UE4Character::Tick(float aDeltaSeconds)
+{
+	FVector* tHeadPos = tVRPNClient->getKinectBonePosition(0);
+	FVector* tTorsoPos = tVRPNClient->getKinectBonePosition(2);
+	FVector* tLHPos = tVRPNClient->getKinectBonePosition(8);
+	FVector* tRHPos = tVRPNClient->getKinectBonePosition(14);
+
+	UE_LOG(UnrealPit, Log, TEXT("Head Position from VRPNClient: %s"), *tHeadPos->ToString());
+	UE_LOG(UnrealPit, Log, TEXT("Torso Position from VRPNClient: %s"), *tTorsoPos->ToString());
+	UE_LOG(UnrealPit, Log, TEXT("Left Hand Position from VRPNClient: %s"), *tLHPos->ToString());
+	UE_LOG(UnrealPit, Log, TEXT("Right Hand Position from VRPNClient: %s"), *tRHPos->ToString());
+}
+

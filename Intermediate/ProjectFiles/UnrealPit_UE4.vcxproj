@@ -51,17 +51,25 @@
 		<None Include="..\..\Config\DefaultEngine.ini" />
 		<None Include="..\..\Config\DefaultGame.ini" />
 		<None Include="..\..\Config\DefaultInput.ini" />
+		<None Include="..\..\Config\VRPN.ini" />
+		<None Include="..\..\Plugins\VRPNClient\Source\VRPNClient\VRPNClient.build.cs" />
+		<ClCompile Include="..\..\Plugins\VRPNClient\Source\VRPNClient\Private\VRPNClient.cpp" />
+		<ClInclude Include="..\..\Plugins\VRPNClient\Source\VRPNClient\Public\VRPNClient.h" />
+		<ClInclude Include="..\..\Plugins\VRPNClient\Source\VRPNClient\Public\VRPNClientPrivatePCH.h" />
+		<None Include="..\..\Plugins\VRPNClient\VRPNClient.uplugin" />
 		<None Include="..\..\Source\UnrealPit_UE4\UnrealPit_UE4.Build.cs" />
 		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4.cpp" />
 		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4Character.cpp" />
 		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4GameMode.cpp" />
 		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4HUD.cpp" />
 		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4Projectile.cpp" />
+		<ClCompile Include="..\..\Source\UnrealPit_UE4\Private\UnrealPit_UE4VRPN.cpp" />
 		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4.h" />
 		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4Character.h" />
 		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4GameMode.h" />
 		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4HUD.h" />
 		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4Projectile.h" />
+		<ClInclude Include="..\..\Source\UnrealPit_UE4\Public\UnrealPit_UE4VRPN.h" />
 		<None Include="..\..\Source\UnrealPit_UE4\Resources\Windows\UnrealPit_UE4.ico" />
 		<ResourceCompile Include="..\..\Source\UnrealPit_UE4\Resources\Windows\UnrealPit_UE4.rc" />
 	</ItemGroup>
