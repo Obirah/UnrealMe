@@ -6,6 +6,7 @@
 static TStaticArray<std::map<int, FVector>, 6> iUsersSkeletonData;
 static std::map<int, FVector> iSkeletonData;
 static std::map<int, bool> iUserTrackingState;
+static std::map<int, FString> iJointToSkeletalBone;
 
 static CameraSpacePoint iPreviousTorsoPos = CameraSpacePoint();
 static FVector iCurrentTorsoDelta = FVector(0, 0, 0);
@@ -42,7 +43,7 @@ void checkDeltaForOutliers(int32 aThreshold)
 
 UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
 {
-
+	
 }
 
 void UUnrealMeKinectV2Connector::initializeTrackingStateMap()
@@ -53,6 +54,64 @@ void UUnrealMeKinectV2Connector::initializeTrackingStateMap()
 	}
 }
 
+void UUnrealMeKinectV2Connector::initializeJointToSkeletalBoneMapping()
+{
+	iJointToSkeletalBone[0] = "pelvis";
+	iJointToSkeletalBone[1] = "spine_02";
+	iJointToSkeletalBone[2] = "neck_01";
+	iJointToSkeletalBone[3] = "head";
+	iJointToSkeletalBone[4] = "upperarm_l";
+	iJointToSkeletalBone[5] = "lowerarm_l";
+	iJointToSkeletalBone[6] = "";
+	iJointToSkeletalBone[7] = "hand_l";
+	iJointToSkeletalBone[8] = "upperarm_r";
+	iJointToSkeletalBone[9] = "lowerarm_r";
+	iJointToSkeletalBone[10] = "";
+	iJointToSkeletalBone[11] = "hand_r";
+	iJointToSkeletalBone[12] = "thigh_l";
+	iJointToSkeletalBone[13] = "calf_l";
+	iJointToSkeletalBone[14] = "foot_l";
+	iJointToSkeletalBone[15] = "ball_l";
+	iJointToSkeletalBone[16] = "thigh_r";
+	iJointToSkeletalBone[17] = "calf_r";
+	iJointToSkeletalBone[18] = "foot_r";
+	iJointToSkeletalBone[19] = "ball_r";
+	iJointToSkeletalBone[20] = "spine_03";
+	iJointToSkeletalBone[21] = "index_03_l";
+	iJointToSkeletalBone[22] = "thumb_03_l";
+	iJointToSkeletalBone[23] = "index_03_r";
+	iJointToSkeletalBone[24] = "thumb_03_r";
+
+	/* THE KINECT JOINTS AND IDS AS A REFERENCE:
+
+	JointType_SpineBase	= 0,
+	JointType_SpineMid	= 1,
+	JointType_Neck	= 2,
+	JointType_Head	= 3,
+	JointType_ShoulderLeft	= 4,
+	JointType_ElbowLeft	= 5,
+	JointType_WristLeft	= 6,
+	JointType_HandLeft	= 7,
+	JointType_ShoulderRight	= 8,
+	JointType_ElbowRight	= 9,
+	JointType_WristRight	= 10,
+	JointType_HandRight	= 11,
+	JointType_HipLeft	= 12,
+	JointType_KneeLeft	= 13,
+	JointType_AnkleLeft	= 14,
+	JointType_FootLeft	= 15,
+	JointType_HipRight	= 16,
+	JointType_KneeRight	= 17,
+	JointType_AnkleRight	= 18,
+	JointType_FootRight	= 19,
+	JointType_SpineShoulder	= 20,
+	JointType_HandTipLeft	= 21,
+	JointType_ThumbLeft	= 22,
+	JointType_HandTipRight	= 23,
+	JointType_ThumbRight	= 24,
+
+	*/
+}
 void UUnrealMeKinectV2Connector::initializeKinect()
 {
 	HRESULT hr;
@@ -81,6 +140,7 @@ void UUnrealMeKinectV2Connector::initializeKinect()
 			hr = tBodyFrameSource->OpenReader(&iBodyFrameReader);
 			/* If the initialization worke so far, we can initialize one of the maps we'll need later on. */
 			initializeTrackingStateMap();
+			initializeJointToSkeletalBoneMapping();
 		}
 
 		SafeRelease(tBodyFrameSource);
@@ -257,4 +317,9 @@ bool UUnrealMeKinectV2Connector::isUserTracked(int32 aUserId)
 	}
 
 	return tBack;
+}
+
+FString UUnrealMeKinectV2Connector::getBoneNameByJoint(int32 aJointId)
+{
+	return iJointToSkeletalBone[aJointId];
 }

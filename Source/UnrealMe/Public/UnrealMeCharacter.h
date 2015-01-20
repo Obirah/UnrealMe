@@ -39,7 +39,7 @@ class AUnrealMeCharacter : public ACharacter
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	class UAnimMontage* FireAnimation;
+	class UAnimMontage* FireAnimation;	
 
 protected:
 

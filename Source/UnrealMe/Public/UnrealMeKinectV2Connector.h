@@ -35,6 +35,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static void initializeKinect();
 	static void initializeTrackingStateMap();
+	static void initializeJointToSkeletalBoneMapping();
 	static void processBody(INT64 aTime, int aBodyCount, IBody** aBodies);
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static void update();
@@ -49,4 +50,6 @@ public:
 	static FVector getCurrentTorsoDelta();
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static bool isUserTracked(int32 aUserId);
+	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
+	static FString getBoneNameByJoint(int32 aJointId);
 };
