@@ -52,4 +52,6 @@ public:
 	static bool isUserTracked(int32 aUserId);
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FString getBoneNameByJoint(int32 aJointId);
+	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
+	static void disconnectKinect();
 };

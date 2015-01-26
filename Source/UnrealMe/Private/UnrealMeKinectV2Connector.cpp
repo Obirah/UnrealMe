@@ -323,3 +323,11 @@ FString UUnrealMeKinectV2Connector::getBoneNameByJoint(int32 aJointId)
 {
 	return iJointToSkeletalBone[aJointId];
 }
+
+void UUnrealMeKinectV2Connector::disconnectKinect()
+{
+	SafeRelease(iBodyFrameReader);
+	SafeRelease(iCoordinateMapper);
+	iKinectSensor->Close();
+	SafeRelease(iKinectSensor);
+}
