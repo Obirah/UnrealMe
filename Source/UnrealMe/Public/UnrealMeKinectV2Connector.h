@@ -33,25 +33,32 @@ class UNREALME_API UUnrealMeKinectV2Connector : public UObject
 	GENERATED_UCLASS_BODY()
 public:
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
-	static void initializeKinect();
+	static void initializeKinect(bool aMultiUser);
 	static void initializeTrackingStateMap();
 	static void initializeJointToSkeletalBoneMapping();
 	static void processBody(INT64 aTime, int aBodyCount, IBody** aBodies);
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static void update();
-	static void updateData(TStaticArray<std::map<int, FVector>, 6> aData);
+	static void updateData(TStaticArray<std::map<int, FVector>, 6> aPositions, TStaticArray<FVector, 6> aDeltas, TStaticArray<CameraSpacePoint, 6> aPreviousTorsoPositions);
+
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FVector getJointPosition(int32 aJointId);
+
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FVector getUserJointPosition(int32 aUserId, int32 aJointId);
+
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static int32 getTrackedUsersCount();
+
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FVector getCurrentTorsoDelta();
+
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static bool isUserTracked(int32 aUserId);
+
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FString getBoneNameByJoint(int32 aJointId);
+
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static void disconnectKinect();
 };

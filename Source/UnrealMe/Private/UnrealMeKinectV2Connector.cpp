@@ -9,7 +9,10 @@ static std::map<int, bool> iUserTrackingState;
 static std::map<int, FString> iJointToSkeletalBone;
 
 static CameraSpacePoint iPreviousTorsoPos = CameraSpacePoint();
+static std::map<int, CameraSpacePoint> iUsersPreviousTorsoPos;
+
 static FVector iCurrentTorsoDelta = FVector(0, 0, 0);
+static std::map<int, FVector> iUsersTorsoDeltas;
 
 static int iTrackedUsers = 0;
 
@@ -17,6 +20,9 @@ static IKinectSensor* iKinectSensor;
 static ICoordinateMapper* iCoordinateMapper;
 static IBodyFrameReader* iBodyFrameReader;
 
+static bool iMultiUser = false;
+
+/* Convert absolute position to relative position */
 CameraSpacePoint getRelativePosition(CameraSpacePoint aTorso, CameraSpacePoint aOtherJoint)
 {
 	CameraSpacePoint tBack = CameraSpacePoint();
@@ -28,16 +34,27 @@ CameraSpacePoint getRelativePosition(CameraSpacePoint aTorso, CameraSpacePoint a
 	return tBack;
 }
 
+/* 
+ * Conversion from Kinect to Unreal coordinate system:
+ * Kinect X	=> Unreal -Y
+ * Kinect Y => Unreal -Z
+ * Kinect Z => Unreal X
+ */
 FVector convertToUnrealSpace(CameraSpacePoint aPosition)
 {
 	return FVector(aPosition.Z * 100, aPosition.X * -100, aPosition.Y * -100);
 }
 
-void checkDeltaForOutliers(int32 aThreshold)
+/* Checks if the torso delta is an outlier (which is defined by the passed threshold) */
+FVector checkDeltaForOutliers(int32 aThreshold, FVector aDelta)
 {
 	if (iCurrentTorsoDelta.X > aThreshold || iCurrentTorsoDelta.Y > aThreshold || iCurrentTorsoDelta.Z > aThreshold)
 	{
-		iCurrentTorsoDelta = FVector(0, 0, 0);
+		return FVector(0, 0, 0);
+	}
+	else
+	{
+		return aDelta;
 	}
 }
 
@@ -112,8 +129,10 @@ void UUnrealMeKinectV2Connector::initializeJointToSkeletalBoneMapping()
 
 	*/
 }
-void UUnrealMeKinectV2Connector::initializeKinect()
+void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 {
+	iMultiUser = aMultiUser;
+
 	HRESULT hr;
 	hr = GetDefaultKinectSensor(&iKinectSensor);
 
@@ -155,6 +174,9 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 	if (iCoordinateMapper)
 	{
 		TStaticArray<std::map<int, FVector>, 6> tUsersSkeletonData;
+		TStaticArray<FVector, 6> tUsersTorsoDeltas;
+		TStaticArray<CameraSpacePoint, 6> tUsersPreviousTorsoPosition;
+
 		int tTrackedUsers = 0;
 
 		for (int i = 0; i < aBodyCount; ++i)
@@ -175,6 +197,8 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 
 					if (SUCCEEDED(hr))
 					{
+						tTrackedUsers++;
+
 						CameraSpacePoint tTorsoPosition;
 						bool tTorsoInitialized = false;
 						std::map<int, FVector> tSkeletonData;						
@@ -195,19 +219,34 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 								tTorsoPosition = tPosition;
 								tTorsoInitialized = true;
 
-								if (iPreviousTorsoPos.X != 0 && iPreviousTorsoPos.Y != 0 && iPreviousTorsoPos.Z != 0)
+								if (!iMultiUser)
 								{
-									CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
-									iCurrentTorsoDelta = convertToUnrealSpace(tTempDelta);
-									checkDeltaForOutliers(10);
-								}
+									if (iPreviousTorsoPos.X != 0 && iPreviousTorsoPos.Y != 0 && iPreviousTorsoPos.Z != 0)
+									{
+										CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
+										iCurrentTorsoDelta = checkDeltaForOutliers(10, convertToUnrealSpace(tTempDelta));
+										
+									}
 
-								iPreviousTorsoPos = tTorsoPosition;
+									iPreviousTorsoPos = tTorsoPosition;
+								}
+								else
+								{
+									if (iUsersPreviousTorsoPos[i].X != 0 && iUsersPreviousTorsoPos[i].Y != 0 && iUsersPreviousTorsoPos[i].Z != 0)
+									{
+										CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
+										tUsersTorsoDeltas[i] = checkDeltaForOutliers(10, convertToUnrealSpace(tTempDelta));
+									}
+
+									iUsersPreviousTorsoPos[i] = tTorsoPosition;
+								}														
 
 								tPosition.X = tSkeletonData[j - 1].X;
 								tPosition.Y = tSkeletonData[j - 1].Y;
 								tPosition.Z = tSkeletonData[j - 1].Z;
+
 								tPosition = getRelativePosition(tTorsoPosition, tPosition);
+
 								tSkeletonData[j-1] = FVector(tPosition.X, tPosition.Y, tPosition.Z);
 							}
 
@@ -231,17 +270,21 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 			}
 		}
 
-		updateData(tUsersSkeletonData);
-		
+		if (iMultiUser)
+		{
+			updateData(tUsersSkeletonData, tUsersTorsoDeltas, tUsersPreviousTorsoPosition);
+		}
 		iTrackedUsers = tTrackedUsers;
 	}
 }
 
-void UUnrealMeKinectV2Connector::updateData(TStaticArray<std::map<int, FVector>, 6> aData)
+void UUnrealMeKinectV2Connector::updateData(TStaticArray<std::map<int, FVector>, 6> aPositions, TStaticArray<FVector, 6> aDeltas, TStaticArray<CameraSpacePoint, 6> aPreviousTorsoPositions)
 {
 	for (int i = 0; i < 6; i++)
 	{
-		iUsersSkeletonData[i] = aData[i];
+		iUsersSkeletonData[i] = aPositions[i];
+		iUsersTorsoDeltas[i] = aDeltas[i];
+		iUsersPreviousTorsoPos[i] = aPreviousTorsoPositions[i];
 	}
 }
 
