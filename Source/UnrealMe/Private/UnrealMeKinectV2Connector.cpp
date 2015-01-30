@@ -3,24 +3,9 @@
 #include "UnrealMe.h"
 #include "UnrealMeKinectV2Connector.h"
 
-static TStaticArray<std::map<int, FVector>, 6> iUsersSkeletonData;
-static std::map<int, FVector> iSkeletonData;
-static std::map<int, bool> iUserTrackingState;
-static std::map<int, FString> iJointToSkeletalBone;
-
-static CameraSpacePoint iPreviousTorsoPos = CameraSpacePoint();
-static std::map<int, CameraSpacePoint> iUsersPreviousTorsoPos;
-
-static FVector iCurrentTorsoDelta = FVector(0, 0, 0);
-static std::map<int, FVector> iUsersTorsoDeltas;
-
-static int iTrackedUsers = 0;
-
-static IKinectSensor* iKinectSensor;
-static ICoordinateMapper* iCoordinateMapper;
-static IBodyFrameReader* iBodyFrameReader;
-
-static bool iMultiUser = false;
+/*
+ * HELPER FUNCTIONS (don't belong to the actual class)
+ */
 
 /* Convert absolute position to relative position */
 CameraSpacePoint getRelativePosition(CameraSpacePoint aTorso, CameraSpacePoint aOtherJoint)
@@ -45,23 +30,109 @@ FVector convertToUnrealSpace(CameraSpacePoint aPosition)
 	return FVector(aPosition.Z * 100, aPosition.X * -100, aPosition.Y * -100);
 }
 
-/* Checks if the torso delta is an outlier (which is defined by the passed threshold) */
-FVector checkDeltaForOutliers(int32 aThreshold, FVector aDelta)
+/* DEFAULT CONSTRUCTOR (doing variable initializations) */
+UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
 {
-	if (iCurrentTorsoDelta.X > aThreshold || iCurrentTorsoDelta.Y > aThreshold || iCurrentTorsoDelta.Z > aThreshold)
+	iPreviousTorsoPos = CameraSpacePoint();
+	iCurrentTorsoDelta = FVector(0, 0, 0);
+	iTrackedUsers = 0;
+	iMultiUser = false;
+}
+
+/*
+ * KINECT CONTROL FUNCTIONS FOR THE APPLICATION
+ */
+
+/* Connect the Kinect. */
+void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
+{
+	iMultiUser = aMultiUser;
+
+	HRESULT tCurrentOperation;
+	tCurrentOperation = GetDefaultKinectSensor(&iKinectSensor);
+
+	if (iKinectSensor)
 	{
-		return FVector(0, 0, 0);
-	}
-	else
-	{
-		return aDelta;
+		IBodyFrameSource* tBodyFrameSource = NULL;
+
+		tCurrentOperation = iKinectSensor->Open();
+
+		/* Subsequently go through the connection process and check each step. */
+		if (SUCCEEDED(tCurrentOperation))
+		{
+			tCurrentOperation = iKinectSensor->get_CoordinateMapper(&iCoordinateMapper);
+		}
+
+		if (SUCCEEDED(tCurrentOperation))
+		{
+			UE_LOG(UnrealMeInit, Log, TEXT("Coordinate mapper successfully initialized."));
+			tCurrentOperation = iKinectSensor->get_BodyFrameSource(&tBodyFrameSource);
+		}
+
+		if (SUCCEEDED(tCurrentOperation))
+		{
+			UE_LOG(UnrealMeInit, Log, TEXT("Body frame source successfully initialized."));
+			tCurrentOperation = tBodyFrameSource->OpenReader(&iBodyFrameReader);
+			/* If the initialization worke so far, we can initialize one of the maps we'll need later on. */
+			initializeTrackingStateMap();
+			initializeJointToSkeletalBoneMapping();
+		}
+
+		/* The body frame source can be dereferenced after the Body Frame Reader is initialized. */
+		SafeRelease(tBodyFrameSource);
+		UE_LOG(UnrealMeInit, Log, TEXT("End of initialization sequence."));
 	}
 }
 
-UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
+/* High-level update method => does all neccessary internal logic and is used to be called from Unreal's Tick event. */
+void UUnrealMeKinectV2Connector::update()
 {
-	
+	if (!iBodyFrameReader)
+	{
+		UE_LOG(UnrealMeInit, Log, TEXT("No body frame reader available."));
+	}
+
+	IBodyFrame* tBodyFrame = NULL;
+	HRESULT tCurrentOperation = iBodyFrameReader->AcquireLatestFrame(&tBodyFrame);
+
+	if (SUCCEEDED(tCurrentOperation))
+	{
+		INT64 tTime = 0;
+		tCurrentOperation = tBodyFrame->get_RelativeTime(&tTime);
+
+		IBody* tBodies[BODY_COUNT] = { 0 };
+
+		if (SUCCEEDED(tCurrentOperation))
+		{
+			tCurrentOperation = tBodyFrame->GetAndRefreshBodyData(_countof(tBodies), tBodies);
+		}
+
+		if (SUCCEEDED(tCurrentOperation))
+		{
+			processBody(tTime, _countof(tBodies), tBodies);
+		}
+
+		for (int i = 0; i < _countof(tBodies); ++i)
+		{
+			SafeRelease(tBodies[i]);
+		}
+	}
+
+	SafeRelease(tBodyFrame);
 }
+
+/* Disconnect the Kinect. */
+void UUnrealMeKinectV2Connector::disconnectKinect()
+{
+	SafeRelease(iBodyFrameReader);
+	SafeRelease(iCoordinateMapper);
+	iKinectSensor->Close();
+	SafeRelease(iKinectSensor);
+}
+
+/* 
+ * INTERNAL PROCESSING LOGIC
+ */
 
 void UUnrealMeKinectV2Connector::initializeTrackingStateMap()
 {
@@ -129,73 +200,52 @@ void UUnrealMeKinectV2Connector::initializeJointToSkeletalBoneMapping()
 
 	*/
 }
-void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
+
+/* Checks if the passed torso delta is an outlier (which is defined by the passed threshold). */
+FVector UUnrealMeKinectV2Connector::checkDeltaForOutliers(int32 aThreshold, FVector aDelta)
 {
-	iMultiUser = aMultiUser;
-
-	HRESULT hr;
-	hr = GetDefaultKinectSensor(&iKinectSensor);
-
-	if (iKinectSensor)
+	/* If any of the dimensions is above the threshold the delta is discarded. */
+	if (iCurrentTorsoDelta.X > aThreshold || iCurrentTorsoDelta.Y > aThreshold || iCurrentTorsoDelta.Z > aThreshold)
 	{
-		IBodyFrameSource* tBodyFrameSource = NULL;
-
-		hr = iKinectSensor->Open();
-
-		if (SUCCEEDED(hr))
-		{
-			hr = iKinectSensor->get_CoordinateMapper(&iCoordinateMapper);
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			UE_LOG(UnrealMeInit, Log, TEXT("Coordinate mapper successfully initialized."));
-			hr = iKinectSensor->get_BodyFrameSource(&tBodyFrameSource);
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			UE_LOG(UnrealMeInit, Log, TEXT("Body frame source successfully initialized."));
-			hr = tBodyFrameSource->OpenReader(&iBodyFrameReader);
-			/* If the initialization worke so far, we can initialize one of the maps we'll need later on. */
-			initializeTrackingStateMap();
-			initializeJointToSkeletalBoneMapping();
-		}
-
-		SafeRelease(tBodyFrameSource);
-		UE_LOG(UnrealMeInit, Log, TEXT("End of initialization sequence."));
+		return FVector(0, 0, 0);
+	}
+	else
+	{
+		return aDelta;
 	}
 }
 
+/* Update loops for the Kinect data. */
 void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody** aBodies)
 {
-	HRESULT hr;
+	HRESULT tCurrentOperation;
 
 	if (iCoordinateMapper)
 	{
+		/* Use temporary collections, not the global ones => prevention of concurrent modification exceptions. */
 		TStaticArray<std::map<int, FVector>, 6> tUsersSkeletonData;
 		TStaticArray<FVector, 6> tUsersTorsoDeltas;
 		TStaticArray<CameraSpacePoint, 6> tUsersPreviousTorsoPosition;
 
 		int tTrackedUsers = 0;
 
+		/* Iterate over all bodies that theoretically may be tracked. */
 		for (int i = 0; i < aBodyCount; ++i)
 		{
-			//tTrackedUsers++;
 			IBody* tBody = aBodies[i];
 
 			if (tBody)
 			{
 				BOOLEAN tIsBodyTracked = false;
-				hr = tBody->get_IsTracked(&tIsBodyTracked);
+				tCurrentOperation = tBody->get_IsTracked(&tIsBodyTracked);
 
-				if (SUCCEEDED(hr) && tIsBodyTracked)
+				if (SUCCEEDED(tCurrentOperation) && tIsBodyTracked)
 				{
 					iUserTrackingState[i] = true;
 					Joint tJoints[JointType_Count];
-					hr = tBody->GetJoints(_countof(tJoints), tJoints);
+					tCurrentOperation = tBody->GetJoints(_countof(tJoints), tJoints);
 
-					if (SUCCEEDED(hr))
+					if (SUCCEEDED(tCurrentOperation))
 					{
 						tTrackedUsers++;
 
@@ -203,22 +253,26 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 						bool tTorsoInitialized = false;
 						std::map<int, FVector> tSkeletonData;						
 
+						/* Iterate over all the joints of the current body's skeleton. */
 						for (int j = 0; j < _countof(tJoints); ++j)
 						{
 							CameraSpacePoint tPosition = tJoints[j].Position;
 							JointType tJointType = tJoints[j].JointType;
 
+							/* Just convert and save the first spine joint (represented by index 0), it will be related to the torso later. */
 							if (j == 0)
 							{
 								tSkeletonData[j] = convertToUnrealSpace(tPosition);
 							}
 
+							/* Index 1 represents the torso joint that we use as a reference for all the other joints later. */
 							if (j == 1)
 							{
 								tSkeletonData[j] = convertToUnrealSpace(tPosition);
 								tTorsoPosition = tPosition;
 								tTorsoInitialized = true;
 
+								/* Save the delta of the torso between the current and the previous update iteration. */
 								if (!iMultiUser)
 								{
 									if (iPreviousTorsoPos.X != 0 && iPreviousTorsoPos.Y != 0 && iPreviousTorsoPos.Z != 0)
@@ -241,6 +295,7 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 									iUsersPreviousTorsoPos[i] = tTorsoPosition;
 								}														
 
+								/* Now that we have saved the torso joint we can relate the spine joint of index 0 to it. */
 								tPosition.X = tSkeletonData[j - 1].X;
 								tPosition.Y = tSkeletonData[j - 1].Y;
 								tPosition.Z = tSkeletonData[j - 1].Z;
@@ -250,26 +305,29 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 								tSkeletonData[j-1] = FVector(tPosition.X, tPosition.Y, tPosition.Z);
 							}
 
+							/* If the torso's initialized we can update all other joints. */
 							if (tTorsoInitialized && j > 1)
 							{
 								tPosition = getRelativePosition(tTorsoPosition, tPosition);
 								tSkeletonData[j] = convertToUnrealSpace(tPosition);
-
-								/*stringstream tStringStream;
-								tStringStream << tJointType << ": X=" << tPosition.X << " Y=" << tPosition.Y << " Z=" << tPosition.Z << endl;
-								cout << tStringStream.str() << endl;*/
-
 							}
 						}
 
+						/* Update the global collections. */
 						iSkeletonData = tSkeletonData;
-						tUsersSkeletonData[i] = tSkeletonData;
+
+						/* Update the value of the current key value pair in the multi user map if neccessary. */
+						if (iMultiUser)
+						{
+							tUsersSkeletonData[i] = tSkeletonData;
+						}						
 					}
 				}
 
 			}
 		}
 
+		/* Do additional updates of global collections if  */
 		if (iMultiUser)
 		{
 			updateData(tUsersSkeletonData, tUsersTorsoDeltas, tUsersPreviousTorsoPosition);
@@ -278,6 +336,7 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 	}
 }
 
+/* Helper method to update the global collections for multi user tracking. */
 void UUnrealMeKinectV2Connector::updateData(TStaticArray<std::map<int, FVector>, 6> aPositions, TStaticArray<FVector, 6> aDeltas, TStaticArray<CameraSpacePoint, 6> aPreviousTorsoPositions)
 {
 	for (int i = 0; i < 6; i++)
@@ -288,63 +347,40 @@ void UUnrealMeKinectV2Connector::updateData(TStaticArray<std::map<int, FVector>,
 	}
 }
 
-void UUnrealMeKinectV2Connector::update()
-{
-	if (!iBodyFrameReader)
-	{
-		UE_LOG(UnrealMeInit, Log, TEXT("No body frame reader available."));
-	}
+/*
+ * FUNCTIONS FOR SINGLE USER TRACKING
+ */
 
-	IBodyFrame* tBodyFrame = NULL;
-	HRESULT hr = iBodyFrameReader->AcquireLatestFrame(&tBodyFrame);
-
-	if (SUCCEEDED(hr))
-	{
-		INT64 tTime = 0;
-		hr = tBodyFrame->get_RelativeTime(&tTime);
-
-		IBody* tBodies[BODY_COUNT] = { 0 };
-
-		if (SUCCEEDED(hr))
-		{
-			hr = tBodyFrame->GetAndRefreshBodyData(_countof(tBodies), tBodies);
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			processBody(tTime, _countof(tBodies), tBodies);
-		}
-
-		for (int i = 0; i < _countof(tBodies); ++i)
-		{
-			SafeRelease(tBodies[i]);
-		}
-	}
-
-	SafeRelease(tBodyFrame);
-}
-
+/* Get the joint position corresponding to the passed id. */
 FVector UUnrealMeKinectV2Connector::getJointPosition(int32 aJointId)
 {
 	return iSkeletonData[aJointId];
 }
 
+/* Get the current torso delta. */
+FVector UUnrealMeKinectV2Connector::getCurrentTorsoDelta()
+{
+	return iCurrentTorsoDelta;
+}
+
+/*
+* FUNCTIONS FOR MULTI USER TRACKING
+*/
+
+/* Get the joint position corresponding to the passed joint id and user id. */
 FVector UUnrealMeKinectV2Connector::getUserJointPosition(int32 aUserId, int32 aJointId)
 {
 	std::map<int, FVector> tTargetUserSkeletonData = iUsersSkeletonData[aUserId];
 	return tTargetUserSkeletonData[aJointId];
 }
 
+/* Get the amount of currently tracked user. */
 int32 UUnrealMeKinectV2Connector::getTrackedUsersCount()
 {
 	return iTrackedUsers;
 }
 
-FVector UUnrealMeKinectV2Connector::getCurrentTorsoDelta()
-{
-	return iCurrentTorsoDelta;
-}
-
+/* Check if the user with the given id is tracked. */
 bool UUnrealMeKinectV2Connector::isUserTracked(int32 aUserId)
 {
 	bool tBack;
@@ -362,15 +398,8 @@ bool UUnrealMeKinectV2Connector::isUserTracked(int32 aUserId)
 	return tBack;
 }
 
+/* Get the bone name corresponding to the passed id. */
 FString UUnrealMeKinectV2Connector::getBoneNameByJoint(int32 aJointId)
 {
 	return iJointToSkeletalBone[aJointId];
-}
-
-void UUnrealMeKinectV2Connector::disconnectKinect()
-{
-	SafeRelease(iBodyFrameReader);
-	SafeRelease(iCoordinateMapper);
-	iKinectSensor->Close();
-	SafeRelease(iKinectSensor);
 }
