@@ -3,6 +3,28 @@
 #include "UnrealMe.h"
 #include "UnrealMeKinectV2Connector.h"
 
+/* COLLECTIONS */
+static TStaticArray<std::map<int, FVector>, 6> iUsersSkeletonData;
+static std::map<int, FVector> iSkeletonData;
+static std::map<int, bool> iUserTrackingState;
+static std::map<int, FString> iJointToSkeletalBone;
+
+/* TORSO POSITIONS AT TIME T-1 */
+static CameraSpacePoint iPreviousTorsoPos;
+static std::map<int, CameraSpacePoint> iUsersPreviousTorsoPos;
+/* TORSO POSITIONS AT TIME T */
+static FVector iCurrentTorsoDelta;
+static std::map<int, FVector> iUsersTorsoDeltas;
+
+/* KINECT VARIABLES */
+static IKinectSensor* iKinectSensor;
+static ICoordinateMapper* iCoordinateMapper;
+static IBodyFrameReader* iBodyFrameReader;
+
+/* MISCELLANEOUS */
+static int iTrackedUsers;
+static bool iMultiUser;
+
 /*
  * HELPER FUNCTIONS (don't belong to the actual class)
  */
@@ -31,7 +53,7 @@ FVector convertToUnrealSpace(CameraSpacePoint aPosition)
 }
 
 /* DEFAULT CONSTRUCTOR (doing variable initializations) */
-UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const class FPostConstructInitializeProperties& PCIP) : Super(PCIP)
+UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
 	iPreviousTorsoPos = CameraSpacePoint();
 	iCurrentTorsoDelta = FVector(0, 0, 0);
@@ -242,14 +264,18 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 				if (SUCCEEDED(tCurrentOperation) && tIsBodyTracked)
 				{
 					iUserTrackingState[i] = true;
+
 					Joint tJoints[JointType_Count];
+					JointOrientation tJointOrientations[JointType_Count];
+
 					tCurrentOperation = tBody->GetJoints(_countof(tJoints), tJoints);
+					tCurrentOperation = tBody->GetJointOrientations(_countof(tJointOrientations), tJointOrientations);
 
 					if (SUCCEEDED(tCurrentOperation))
 					{
 						tTrackedUsers++;
 
-						CameraSpacePoint tTorsoPosition;
+						CameraSpacePoint tTorsoPosition = CameraSpacePoint();
 						bool tTorsoInitialized = false;
 						std::map<int, FVector> tSkeletonData;						
 
@@ -258,6 +284,8 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 						{
 							CameraSpacePoint tPosition = tJoints[j].Position;
 							JointType tJointType = tJoints[j].JointType;
+
+							Vector4 tJointOrientation = tJointOrientations[j].Orientation;
 
 							/* Just convert and save the first spine joint (represented by index 0), it will be related to the torso later. */
 							if (j == 0)

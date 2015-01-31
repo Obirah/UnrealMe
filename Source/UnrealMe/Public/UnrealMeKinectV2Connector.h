@@ -32,27 +32,7 @@ class UNREALME_API UUnrealMeKinectV2Connector : public UObject
 {
 	GENERATED_UCLASS_BODY()
 private:
-	/* COLLECTIONS */
-	static TStaticArray<std::map<int, FVector>, 6> iUsersSkeletonData;
-	static std::map<int, FVector> iSkeletonData;
-	static std::map<int, bool> iUserTrackingState;
-	static std::map<int, FString> iJointToSkeletalBone;
-
-	/* TORSO POSITIONS AT TIME T-1 */
-	static CameraSpacePoint iPreviousTorsoPos;
-	static std::map<int, CameraSpacePoint> iUsersPreviousTorsoPos;
-	/* TORSO POSITIONS AT TIME T */
-	static FVector iCurrentTorsoDelta;
-	static std::map<int, FVector> iUsersTorsoDeltas;
-
-	/* KINECT VARIABLES */
-	static IKinectSensor* iKinectSensor;
-	static ICoordinateMapper* iCoordinateMapper;
-	static IBodyFrameReader* iBodyFrameReader;
-
-	/* MISCELLANEOUS */
-	static int iTrackedUsers;
-	static bool iMultiUser;
+	
 public:
 	/* KINECT CONTROL FUNCTIONS FOR THE APPLICATION */
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
