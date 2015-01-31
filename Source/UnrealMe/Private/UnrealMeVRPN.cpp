@@ -11,7 +11,7 @@ typedef FQuatVector* (*_getQuaternion)(int boneId);
 
 static void *DLLHandle;
 
-UUnrealMeVRPN::UUnrealMeVRPN(const class FPostConstructInitializeProperties& PCIP)
+UUnrealMeVRPN::UUnrealMeVRPN(const FObjectInitializer& PCIP)
 : Super(PCIP)
 {
 	UE_LOG(UnrealMeInit, Log, TEXT("Construction of VRPN"));

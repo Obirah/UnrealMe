@@ -5,11 +5,11 @@
 #include "UnrealMeHUD.h"
 #include "UnrealMeCharacter.h"
 
-AUnrealMeGameMode::AUnrealMeGameMode(const class FPostConstructInitializeProperties& PCIP)
+AUnrealMeGameMode::AUnrealMeGameMode(const FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	// set default pawn class to our Blueprinted character
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/AnimStarterPack/Character/UnrealMeKinectCharacter"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Character/UnrealMe/UnrealMeKinectCharacter"));
 	//static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/MyCharacter")); 
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 

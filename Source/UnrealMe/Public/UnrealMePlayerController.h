@@ -11,8 +11,7 @@
 UCLASS()
 class UNREALME_API AUnrealMePlayerController : public APlayerController
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
-	
-	
+	AUnrealMePlayerController(const FObjectInitializer& PCIP);
 };

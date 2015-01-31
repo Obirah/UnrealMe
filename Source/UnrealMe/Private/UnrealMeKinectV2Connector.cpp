@@ -9,6 +9,8 @@ static std::map<int, FVector> iSkeletonData;
 static std::map<int, bool> iUserTrackingState;
 static std::map<int, FString> iJointToSkeletalBone;
 
+static std::map<int, FRotator> iSkeletonRotationData;
+
 /* TORSO POSITIONS AT TIME T-1 */
 static CameraSpacePoint iPreviousTorsoPos;
 static std::map<int, CameraSpacePoint> iUsersPreviousTorsoPos;
@@ -47,18 +49,20 @@ CameraSpacePoint getRelativePosition(CameraSpacePoint aTorso, CameraSpacePoint a
  * Kinect Y => Unreal -Z
  * Kinect Z => Unreal X
  */
-FVector convertToUnrealSpace(CameraSpacePoint aPosition)
+FVector convertPositionToUnrealSpace(CameraSpacePoint aPosition)
 {
 	return FVector(aPosition.Z * 100, aPosition.X * -100, aPosition.Y * -100);
 }
 
-/* DEFAULT CONSTRUCTOR (doing variable initializations) */
-UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const class FObjectInitializer& PCIP) : Super(PCIP)
+FQuat convertRotationToUnrealSpace(Vector4 aQuaternion)
 {
-	iPreviousTorsoPos = CameraSpacePoint();
-	iCurrentTorsoDelta = FVector(0, 0, 0);
-	iTrackedUsers = 0;
-	iMultiUser = false;
+	return FQuat(aQuaternion.z, aQuaternion.x * -1, aQuaternion.y * -1, aQuaternion.w);
+}
+
+/* DEFAULT CONSTRUCTOR (doing variable initializations) */
+UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const FObjectInitializer& PCIP) : Super(PCIP)
+{
+
 }
 
 /*
@@ -69,6 +73,12 @@ UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const class FObjectInitia
 void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 {
 	iMultiUser = aMultiUser;
+
+	/* Variable default initializations */
+	iPreviousTorsoPos = CameraSpacePoint();
+	iCurrentTorsoDelta = FVector(0, 0, 0);
+	iTrackedUsers = 0;
+	iMultiUser = false;
 
 	HRESULT tCurrentOperation;
 	tCurrentOperation = GetDefaultKinectSensor(&iKinectSensor);
@@ -269,15 +279,16 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 					JointOrientation tJointOrientations[JointType_Count];
 
 					tCurrentOperation = tBody->GetJoints(_countof(tJoints), tJoints);
-					tCurrentOperation = tBody->GetJointOrientations(_countof(tJointOrientations), tJointOrientations);
+					HRESULT tCurrentOperation2 = tBody->GetJointOrientations(_countof(tJointOrientations), tJointOrientations);
 
-					if (SUCCEEDED(tCurrentOperation))
+					if (SUCCEEDED(tCurrentOperation) && SUCCEEDED(tCurrentOperation2))
 					{
 						tTrackedUsers++;
 
 						CameraSpacePoint tTorsoPosition = CameraSpacePoint();
 						bool tTorsoInitialized = false;
-						std::map<int, FVector> tSkeletonData;						
+						std::map<int, FVector> tSkeletonData;
+						std::map<int, FRotator> tSkeletonRotationData;
 
 						/* Iterate over all the joints of the current body's skeleton. */
 						for (int j = 0; j < _countof(tJoints); ++j)
@@ -290,13 +301,13 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 							/* Just convert and save the first spine joint (represented by index 0), it will be related to the torso later. */
 							if (j == 0)
 							{
-								tSkeletonData[j] = convertToUnrealSpace(tPosition);
+								tSkeletonData[j] = convertPositionToUnrealSpace(tPosition);								
 							}
 
 							/* Index 1 represents the torso joint that we use as a reference for all the other joints later. */
 							if (j == 1)
 							{
-								tSkeletonData[j] = convertToUnrealSpace(tPosition);
+								tSkeletonData[j] = convertPositionToUnrealSpace(tPosition);
 								tTorsoPosition = tPosition;
 								tTorsoInitialized = true;
 
@@ -306,7 +317,7 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 									if (iPreviousTorsoPos.X != 0 && iPreviousTorsoPos.Y != 0 && iPreviousTorsoPos.Z != 0)
 									{
 										CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
-										iCurrentTorsoDelta = checkDeltaForOutliers(10, convertToUnrealSpace(tTempDelta));
+										iCurrentTorsoDelta = checkDeltaForOutliers(10, convertPositionToUnrealSpace(tTempDelta));
 										
 									}
 
@@ -317,7 +328,7 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 									if (iUsersPreviousTorsoPos[i].X != 0 && iUsersPreviousTorsoPos[i].Y != 0 && iUsersPreviousTorsoPos[i].Z != 0)
 									{
 										CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
-										tUsersTorsoDeltas[i] = checkDeltaForOutliers(10, convertToUnrealSpace(tTempDelta));
+										tUsersTorsoDeltas[i] = checkDeltaForOutliers(10, convertPositionToUnrealSpace(tTempDelta));
 									}
 
 									iUsersPreviousTorsoPos[i] = tTorsoPosition;
@@ -337,12 +348,16 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 							if (tTorsoInitialized && j > 1)
 							{
 								tPosition = getRelativePosition(tTorsoPosition, tPosition);
-								tSkeletonData[j] = convertToUnrealSpace(tPosition);
+								tSkeletonData[j] = convertPositionToUnrealSpace(tPosition);								
 							}
+
+							FQuat tQuaternionRotation = FQuat(tJointOrientation.x, tJointOrientation.y, tJointOrientation.z, tJointOrientation.w);//convertRotationToUnrealSpace(tJointOrientation);
+							tSkeletonRotationData[j] = tQuaternionRotation.Rotator();
 						}
 
 						/* Update the global collections. */
 						iSkeletonData = tSkeletonData;
+						iSkeletonRotationData = tSkeletonRotationData;
 
 						/* Update the value of the current key value pair in the multi user map if neccessary. */
 						if (iMultiUser)
@@ -389,6 +404,12 @@ FVector UUnrealMeKinectV2Connector::getJointPosition(int32 aJointId)
 FVector UUnrealMeKinectV2Connector::getCurrentTorsoDelta()
 {
 	return iCurrentTorsoDelta;
+}
+
+/* Get the joint orientation corresponding to the passed id */
+FRotator UUnrealMeKinectV2Connector::getJointRotation(int32 aJointId)
+{
+	return iSkeletonRotationData[aJointId];
 }
 
 /*

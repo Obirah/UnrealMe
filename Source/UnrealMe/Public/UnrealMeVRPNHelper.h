@@ -14,8 +14,9 @@ enum TrackingAxis{ X, Y, Z };
 UCLASS(Blueprintable)
 class UNREALME_API UUnrealMeVRPNHelper : public UObject
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 public:
+	UUnrealMeVRPNHelper(const FObjectInitializer& PCIP);
 	UFUNCTION(BlueprintCallable, Category = "VRPNHelper")
 	static FVector metersToUnrealUnits(FVector aOriginal);
 	UFUNCTION(BlueprintCallable, Category = "VRPNHelper")

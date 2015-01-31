@@ -4,7 +4,7 @@
 #include "UnrealMeProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
-AUnrealMeProjectile::AUnrealMeProjectile(const class FPostConstructInitializeProperties& PCIP) 
+AUnrealMeProjectile::AUnrealMeProjectile(const FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	// Use a sphere as a simple collision representation

@@ -25,8 +25,9 @@ struct FQuatVector{
 UCLASS(Blueprintable)
 class UNREALME_API UUnrealMeVRPN : public UObject
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 public:
+	UUnrealMeVRPN(const FObjectInitializer& PCIP);
 	UFUNCTION(BlueprintCallable, Category = "VRPN")
 	static void initializeTracker();
 	UFUNCTION(BlueprintCallable, Category = "VRPN")

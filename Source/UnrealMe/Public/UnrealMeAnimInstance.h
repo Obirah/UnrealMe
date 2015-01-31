@@ -13,12 +13,13 @@
 UCLASS(transient, Blueprintable, hideCategories = AnimInstance, BlueprintType)
 class UNREALME_API UUnrealMeAnimInstance : public UAnimInstance
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
 private:
 	//UUnrealMeVRPN* iVRPNClient;
 
 public:
+	UUnrealMeAnimInstance(const FObjectInitializer& PCIP);
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HandPlacement)
 	APawn* iOwningPawn;
 

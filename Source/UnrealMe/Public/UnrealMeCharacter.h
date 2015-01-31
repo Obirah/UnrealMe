@@ -1,21 +1,23 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
-#include "UnrealMeVRPN.h"
 #include "UnrealMeCharacter.generated.h"
 
 UCLASS(config=Game)
 class AUnrealMeCharacter : public ACharacter
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
-	TSubobjectPtr<class USkeletalMeshComponent> Mesh1P;
+	class USkeletalMeshComponent* Mesh1P;
 
 	/** First person camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
-	TSubobjectPtr<class UCameraComponent> FirstPersonCameraComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FirstPersonCameraComponent;
+
+public:
+	AUnrealMeCharacter(const FObjectInitializer& PCIP);
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -42,7 +44,6 @@ class AUnrealMeCharacter : public ACharacter
 	class UAnimMontage* FireAnimation;	
 
 protected:
-
 	/** Handler for a touch input beginning. */
 	void TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location);
 
@@ -71,5 +72,11 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
+
+public:
+	/** Returns Mesh1P subobject **/
+	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	/** Returns FirstPersonCameraComponent subobject **/
+	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 };
 

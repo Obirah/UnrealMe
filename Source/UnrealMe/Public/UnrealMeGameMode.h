@@ -6,8 +6,10 @@
 UCLASS(minimalapi)
 class AUnrealMeGameMode : public AGameMode
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
+public:
+	AUnrealMeGameMode(const FObjectInitializer& PCIP);
 };
 
 

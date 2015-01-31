@@ -1,5 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #ifndef WIN32_LEAN_AND_MEAN
@@ -30,10 +29,11 @@ inline void SafeRelease(Interface *& aInterfaceToRelease)
 UCLASS(Blueprintable)
 class UNREALME_API UUnrealMeKinectV2Connector : public UObject
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 private:
 	
 public:
+	UUnrealMeKinectV2Connector(const FObjectInitializer& PCIP);
 	/* KINECT CONTROL FUNCTIONS FOR THE APPLICATION */
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static void initializeKinect(bool aMultiUser);
@@ -53,7 +53,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FVector getJointPosition(int32 aJointId);
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
-		static FVector getCurrentTorsoDelta();
+	static FVector getCurrentTorsoDelta();
+	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
+	static FRotator getJointRotation(int32 aJointId);
 
 	/* MULTI USER TRACKING FUNCTIONS FOR THE APPLICATION */
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")

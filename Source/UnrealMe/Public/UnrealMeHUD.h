@@ -6,10 +6,10 @@
 UCLASS()
 class AUnrealMeHUD : public AHUD
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
 public:
-
+	AUnrealMeHUD(const FObjectInitializer& PCIP);
 	/** Primary draw call for the HUD */
 	virtual void DrawHUD() override;
 

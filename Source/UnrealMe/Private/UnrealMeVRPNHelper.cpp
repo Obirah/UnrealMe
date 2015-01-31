@@ -3,7 +3,7 @@
 #include "UnrealMe.h"
 #include "UnrealMeVRPNHelper.h"
 
-UUnrealMeVRPNHelper::UUnrealMeVRPNHelper(const class FPostConstructInitializeProperties& PCIP)
+UUnrealMeVRPNHelper::UUnrealMeVRPNHelper(const FObjectInitializer& PCIP)
 : Super(PCIP)
 {
 

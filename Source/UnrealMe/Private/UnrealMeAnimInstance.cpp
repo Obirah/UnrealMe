@@ -4,7 +4,7 @@
 #include "UnrealMeAnimInstance.h"
 
 
-UUnrealMeAnimInstance::UUnrealMeAnimInstance(const class FPostConstructInitializeProperties& PCIP)
+UUnrealMeAnimInstance::UUnrealMeAnimInstance(const FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	SkelControl_LeftHandPos = FVector(0, 0, 0);

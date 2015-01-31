@@ -10,11 +10,11 @@
 //////////////////////////////////////////////////////////////////////////
 // AUnrealMeCharacter
 
-AUnrealMeCharacter::AUnrealMeCharacter(const class FPostConstructInitializeProperties& PCIP)
+AUnrealMeCharacter::AUnrealMeCharacter(const FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	// Set size for collision capsule
-	CapsuleComponent->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -22,7 +22,7 @@ AUnrealMeCharacter::AUnrealMeCharacter(const class FPostConstructInitializePrope
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = PCIP.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FirstPersonCamera"));
-	FirstPersonCameraComponent->AttachParent = CapsuleComponent;
+	FirstPersonCameraComponent->AttachParent = GetCapsuleComponent();
 	FirstPersonCameraComponent->RelativeLocation = FVector(0, 0, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 

@@ -4,7 +4,7 @@
 #include "UnrealMePlayerController.h"
 
 
-AUnrealMePlayerController::AUnrealMePlayerController(const class FPostConstructInitializeProperties& PCIP)
+AUnrealMePlayerController::AUnrealMePlayerController(const FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 
