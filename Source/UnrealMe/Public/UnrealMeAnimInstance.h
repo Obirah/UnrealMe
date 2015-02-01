@@ -78,11 +78,21 @@ public:
 	FRotator SkelControl_LeftHandRot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftThumbRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftHandTipRot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_RightUpperarmRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_RightLowerarmRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_RightHandRot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightThumbRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightHandTipRot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_LeftThighRot;
