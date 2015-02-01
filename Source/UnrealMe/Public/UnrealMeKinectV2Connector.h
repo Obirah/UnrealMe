@@ -12,6 +12,47 @@
 #include "HideWindowsPlatformTypes.h"
 #include "UnrealMeKinectV2Connector.generated.h"
 
+USTRUCT()
+struct FRotations
+{
+	GENERATED_USTRUCT_BODY()
+
+	TStaticArray<FRotator, 10> iRotationBuffer;
+
+	FRotator getMeanRotator()
+	{
+		float tSumPitch = 0;
+		float tSumRoll = 0;
+		float tSumYaw = 0;
+
+		for (int i = 0; i < 10; i++)
+		{
+			FRotator tCurrentRotator = iRotationBuffer[i];
+
+			tSumPitch += tCurrentRotator.Pitch;
+			tSumRoll += tCurrentRotator.Roll;
+			tSumYaw += tCurrentRotator.Yaw;
+		}
+
+		FRotator tSmoothedRotator = FRotator();
+		tSmoothedRotator.Roll = tSumYaw / 10;
+		tSmoothedRotator.Pitch = tSumPitch / 10;
+		tSmoothedRotator.Yaw = tSumRoll / 10;
+
+		return tSmoothedRotator;
+	}
+
+	void addRotatorAt(int32 aIndex, FRotator aRotator)
+	{
+		iRotationBuffer[aIndex] = aRotator;
+	}
+
+	FRotations()
+	{
+		
+	}
+};
+
 /* Safe release for interfaces */
 template<class Interface>
 inline void SafeRelease(Interface *& aInterfaceToRelease)
@@ -57,6 +98,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FRotator getJointRotation(int32 aJointId);
 
+	static FRotator getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint);
+
 	/* MULTI USER TRACKING FUNCTIONS FOR THE APPLICATION */
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FVector getUserJointPosition(int32 aUserId, int32 aJointId);
@@ -66,4 +109,7 @@ public:
 	static bool isUserTracked(int32 aUserId);
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FString getBoneNameByJoint(int32 aJointId);	
+
+	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
+	static int32 offsetRotation(int32 aAxis, int32 aDegrees);
 };

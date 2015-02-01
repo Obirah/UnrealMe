@@ -11,6 +11,8 @@ static std::map<int, FString> iJointToSkeletalBone;
 
 static std::map<int, FRotator> iSkeletonRotationData;
 
+static TStaticArray<FRotations, 25> iBuffer;
+
 /* TORSO POSITIONS AT TIME T-1 */
 static CameraSpacePoint iPreviousTorsoPos;
 static std::map<int, CameraSpacePoint> iUsersPreviousTorsoPos;
@@ -26,6 +28,13 @@ static IBodyFrameReader* iBodyFrameReader;
 /* MISCELLANEOUS */
 static int iTrackedUsers;
 static bool iMultiUser;
+
+/* TEST */
+static int iRotationBufferSize;
+
+static int iRotationXOffset = 0;
+static int iRotationYOffset = 0;
+static int iRotationZOffset = 0;
 
 /*
  * HELPER FUNCTIONS (don't belong to the actual class)
@@ -56,7 +65,7 @@ FVector convertPositionToUnrealSpace(CameraSpacePoint aPosition)
 
 FQuat convertRotationToUnrealSpace(Vector4 aQuaternion)
 {
-	return FQuat(aQuaternion.z, aQuaternion.x * -1, aQuaternion.y * -1, aQuaternion.w);
+	return FQuat(aQuaternion.z, aQuaternion.x, aQuaternion.y, aQuaternion.w);
 }
 
 /* DEFAULT CONSTRUCTOR (doing variable initializations) */
@@ -79,6 +88,13 @@ void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 	iCurrentTorsoDelta = FVector(0, 0, 0);
 	iTrackedUsers = 0;
 	iMultiUser = false;
+	iRotationBufferSize = 0;
+
+	/*iBuffer = TStaticArray<FRotations, 24>();*/
+	for (int i = 0; i < 25; i++)
+	{
+		iBuffer[i] = FRotations();
+	}
 
 	HRESULT tCurrentOperation;
 	tCurrentOperation = GetDefaultKinectSensor(&iKinectSensor);
@@ -156,6 +172,10 @@ void UUnrealMeKinectV2Connector::update()
 /* Disconnect the Kinect. */
 void UUnrealMeKinectV2Connector::disconnectKinect()
 {
+	iRotationXOffset = 0;
+	iRotationYOffset = 0;
+	iRotationZOffset = 0;
+
 	SafeRelease(iBodyFrameReader);
 	SafeRelease(iCoordinateMapper);
 	iKinectSensor->Close();
@@ -352,12 +372,41 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 							}
 
 							FQuat tQuaternionRotation = FQuat(tJointOrientation.x, tJointOrientation.y, tJointOrientation.z, tJointOrientation.w);//convertRotationToUnrealSpace(tJointOrientation);
-							tSkeletonRotationData[j] = tQuaternionRotation.Rotator();
+							FRotator tKinectRotator = tQuaternionRotation.Rotator();
+
+							FRotator tUnrealRotator = FRotator();
+							tUnrealRotator.Roll = tKinectRotator.Yaw;
+							tUnrealRotator.Pitch = tKinectRotator.Pitch;
+							tUnrealRotator.Yaw = tKinectRotator.Roll;
+
+							tSkeletonRotationData[j] = tUnrealRotator;							
+							
+							//iBuffer[j].addRotatorAt(iRotationBufferSize, tKinectRotator);
 						}
 
 						/* Update the global collections. */
 						iSkeletonData = tSkeletonData;
 						iSkeletonRotationData = tSkeletonRotationData;
+						//iSkeletonRotationBuffer[iRotationBufferSize] = tSkeletonRotationData;
+						iRotationBufferSize++;
+
+						/*if (iRotationBufferSize == 9)
+						{
+							for (int i = 0; i < 25; i++)
+							{
+								FRotator tKinectRotator = iBuffer[i].getMeanRotator();
+
+								FRotator tUnrealRotator = FRotator();
+								tUnrealRotator.Roll = tKinectRotator.Yaw;
+								tUnrealRotator.Pitch = tKinectRotator.Pitch;
+								tUnrealRotator.Yaw = tKinectRotator.Roll;
+
+								tSkeletonRotationData[i] = tUnrealRotator;
+							}
+
+							iSkeletonRotationData = tSkeletonRotationData;
+							iRotationBufferSize = 0;
+						}*/
 
 						/* Update the value of the current key value pair in the multi user map if neccessary. */
 						if (iMultiUser)
@@ -406,24 +455,60 @@ FVector UUnrealMeKinectV2Connector::getCurrentTorsoDelta()
 	return iCurrentTorsoDelta;
 }
 
-/* Get the joint orientation corresponding to the passed id */
+/** Get the joint orientation corresponding to the passed id */
 FRotator UUnrealMeKinectV2Connector::getJointRotation(int32 aJointId)
 {
-	return iSkeletonRotationData[aJointId];
+	FRotator tBack = FRotator();
+	tBack.Roll = iSkeletonRotationData[aJointId].Roll + iRotationXOffset;
+	tBack.Pitch = iSkeletonRotationData[aJointId].Pitch + iRotationYOffset;
+	tBack.Yaw = iSkeletonRotationData[aJointId].Yaw + iRotationZOffset;
+	return tBack;
+}
+
+/** Derive the joint rotation from the relative position of one joint to another */
+FRotator UUnrealMeKinectV2Connector::getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint)
+{
+	FVector tStartJointPos;
+	if (aStartJoint != 1)
+	{
+		tStartJointPos = iSkeletonData[aStartJoint];
+	}
+	else
+	{
+		tStartJointPos = FVector(0, 0, 0);
+	}
+
+	FVector tEndJointPos;
+	if (aEndJoint != 1)
+	{
+		tEndJointPos = iSkeletonData[aEndJoint];
+	}
+	else
+	{
+		tEndJointPos = FVector(0, 0, 0);
+	}
+
+	FVector tRelative = FVector();
+	tRelative.X = tStartJointPos.X - tEndJointPos.X;
+	tRelative.Y = tStartJointPos.Y - tEndJointPos.Y;
+	tRelative.Z = tStartJointPos.Z - tEndJointPos.Z;
+
+	FRotator tBack = tRelative.Rotation();
+	return tBack;
 }
 
 /*
 * FUNCTIONS FOR MULTI USER TRACKING
 */
 
-/* Get the joint position corresponding to the passed joint id and user id. */
+/** Get the joint position corresponding to the passed joint id and user id. */
 FVector UUnrealMeKinectV2Connector::getUserJointPosition(int32 aUserId, int32 aJointId)
 {
 	std::map<int, FVector> tTargetUserSkeletonData = iUsersSkeletonData[aUserId];
 	return tTargetUserSkeletonData[aJointId];
 }
 
-/* Get the amount of currently tracked user. */
+/** Get the amount of currently tracked user. */
 int32 UUnrealMeKinectV2Connector::getTrackedUsersCount()
 {
 	return iTrackedUsers;
@@ -451,4 +536,26 @@ bool UUnrealMeKinectV2Connector::isUserTracked(int32 aUserId)
 FString UUnrealMeKinectV2Connector::getBoneNameByJoint(int32 aJointId)
 {
 	return iJointToSkeletalBone[aJointId];
+}
+
+int32 UUnrealMeKinectV2Connector::offsetRotation(int32 aAxis, int32 aDegrees)
+{
+	int32 tBack = 0;
+
+	switch (aAxis)
+	{
+	case 1:
+		iRotationXOffset += aDegrees;
+		tBack = iRotationXOffset;
+		break;
+	case 2:
+		iRotationYOffset += aDegrees;
+		tBack = iRotationYOffset;
+		break;
+	case 3:
+		iRotationZOffset += aDegrees;
+		tBack = iRotationZOffset;
+    }
+
+	return tBack;
 }
