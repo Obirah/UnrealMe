@@ -68,6 +68,25 @@ FQuat convertRotationToUnrealSpace(Vector4 aQuaternion)
 	return FQuat(aQuaternion.z, aQuaternion.x, aQuaternion.y, aQuaternion.w);
 }
 
+FQuat getQuaternionFromVectors(FVector aVector1, FVector aVector2)
+{
+	FQuat tQuaternion = FQuat();
+	FVector tCrossProduct = FVector::CrossProduct(aVector1, aVector2);
+	
+	tQuaternion.X = tCrossProduct.X;
+	tQuaternion.Y = tCrossProduct.Y;
+	tQuaternion.Z = tCrossProduct.Z;
+
+	float tV1size = aVector1.Size();
+	float tV2size = aVector2.Size();
+
+	float tQuatW = FMath::Sqrt(FMath::Pow(tV1size, 2) * FMath::Pow(tV2size, 2)) + FVector::DotProduct(aVector1, aVector2);
+	tQuaternion.W = tQuatW;
+
+	tQuaternion.Normalize();
+	return tQuaternion;
+}
+
 /* DEFAULT CONSTRUCTOR (doing variable initializations) */
 UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const FObjectInitializer& PCIP) : Super(PCIP)
 {
@@ -443,13 +462,13 @@ void UUnrealMeKinectV2Connector::updateData(TStaticArray<std::map<int, FVector>,
  * FUNCTIONS FOR SINGLE USER TRACKING
  */
 
-/* Get the joint position corresponding to the passed id. */
+/** Get the joint position corresponding to the passed id. */
 FVector UUnrealMeKinectV2Connector::getJointPosition(int32 aJointId)
 {
 	return iSkeletonData[aJointId];
 }
 
-/* Get the current torso delta. */
+/** Get the current torso delta. */
 FVector UUnrealMeKinectV2Connector::getCurrentTorsoDelta()
 {
 	return iCurrentTorsoDelta;
@@ -493,7 +512,10 @@ FRotator UUnrealMeKinectV2Connector::getJointRotationByPosition(int32 aStartJoin
 	tRelative.Y = tStartJointPos.Y - tEndJointPos.Y;
 	tRelative.Z = tStartJointPos.Z - tEndJointPos.Z;
 
-	FRotator tBack = tRelative.Rotation();
+	/*FQuat tQuaternion = getQuaternionFromVectors(tStartJointPos, tEndJointPos);*/
+	//tQuaternion.Rotator();
+
+	FRotator tBack = tRelative.Rotation(); 
 	return tBack;
 }
 
