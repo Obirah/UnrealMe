@@ -46,11 +46,11 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 	SkelControl_SpineMidRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(0, 2);//UUnrealMeKinectV2Connector::getJointRotation(1);
 	SkelControl_NeckRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(0, 2);//UUnrealMeKinectV2Connector::getJointRotation(2);
 
-	SkelControl_LeftElbowRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(6, 5);//UUnrealMeKinectV2Connector::getJointRotation(5);
-	SkelControl_LeftWristRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(7, 6);//UUnrealMeKinectV2Connector::getJointRotation(6);
+	SkelControl_LeftElbowRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(5, 4);//UUnrealMeKinectV2Connector::getJointRotation(5);
+	SkelControl_LeftWristRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(6, 5);//UUnrealMeKinectV2Connector::getJointRotation(6);
 
-	SkelControl_RightElbowRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(9, 10);//UUnrealMeKinectV2Connector::getJointRotation(9);
-	SkelControl_RightWristRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(10, 11);//UUnrealMeKinectV2Connector::getJointRotation(10);
+	SkelControl_RightElbowRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(8, 9);//UUnrealMeKinectV2Connector::getJointRotation(9);
+	SkelControl_RightWristRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(9, 10);//UUnrealMeKinectV2Connector::getJointRotation(10);
 
 	SkelControl_LeftKneeRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(12, 13);//UUnrealMeKinectV2Connector::getJointRotation(13);
 	SkelControl_LeftAnkleRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(13, 14); //UUnrealMeKinectV2Connector::getJointRotation(14);
