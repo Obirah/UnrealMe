@@ -16,15 +16,10 @@ class UNREALME_API UUnrealMeAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 private:
-	//UUnrealMeVRPN* iVRPNClient;
 
 public:
 	UUnrealMeAnimInstance(const FObjectInitializer& PCIP);
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HandPlacement)
 	APawn* iOwningPawn;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-    //FVector SkelControl_LeftHandPos;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_SpineBasePureRot;
@@ -51,25 +46,34 @@ public:
 	FRotator SkelControl_SpineMidRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_NeckRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_LeftElbowRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_LeftWristRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_RightElbowRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_RightWristRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_LeftKneeRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_LeftAnkleRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_RightKneeRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
-	FRotator SkelControl_RightAnkleRot;
 
-	UFUNCTION(BlueprintCallable, Category = "UnrealMeAnimation")
-	//void setLeftHandPos(FVector aPosition);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftUpperarmRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftLowerarmRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftHandRot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightUpperarmRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightLowerarmRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightHandRot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftThighRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftCalfRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_LeftFootRot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightThighRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightCalfRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_RightFootRot;
 
 	/* Override the AnimInstance's function that is similar to the PostInitializeComponents event. */
 	virtual void NativeInitializeAnimation() override;
