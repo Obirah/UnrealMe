@@ -7,6 +7,29 @@
 #include "UnrealMeKinectV2Connector.h"
 #include "UnrealMeAnimInstance.generated.h"
 
+UENUM(BlueprintType)
+enum class EJointRotationType
+{
+	JR_SPINE_BY_S UMETA(DisplayName = "Spine Rotation by Shoulders"),
+	JR_SPINE_BY_H UMETA(DisplayName = "Spine Rotation by Hips"),
+
+	JR_UPPERARM_L UMETA(DisplayName = "Left Upperarm"),
+	JR_LOWERARM_L UMETA(DisplayName = "Left Lowerarm"),
+	JR_HAND_L UMETA(DisplayName = "Left Hand"),
+
+	JR_UPPERARM_R UMETA(DisplayName = "Right Upperarm"),
+	JR_LOWERARM_R UMETA(DisplayName = "Right Lowerarm"),
+	JR_HAND_R UMETA(DisplayName = "Right Hand"),
+
+	JR_THIGH_L UMETA(DisplayName = "Left Thigh"),
+	JR_CALF_L UMETA(DisplayName = "Left Calf"),
+	JR_FOOT_L UMETA(DisplayName = "Left Foot"),
+
+	JR_THIGH_R UMETA(DisplayName = "Right Thigh"),
+	JR_CALF_R UMETA(DisplayName = "Right Calf"),
+	JR_FOOT_R UMETA(DisplayName = "Right Foot") 
+};
+
 /**
  * 
  */
@@ -19,7 +42,7 @@ private:
 
 public:
 	UUnrealMeAnimInstance(const FObjectInitializer& PCIP);
-	APawn* iOwningPawn;
+	APawn* iOwningPawn;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_SpineBasePureRot;
@@ -74,6 +97,9 @@ public:
 	FRotator SkelControl_RightCalfRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_RightFootRot;
+
+	UFUNCTION(BlueprintCallable, Category = KinectV2Animation)
+	static FRotator getJointRotation(EJointRotationType aJoint);
 
 	/* Override the AnimInstance's function that is similar to the PostInitializeComponents event. */
 	virtual void NativeInitializeAnimation() override;

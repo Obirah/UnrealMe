@@ -17,7 +17,7 @@ struct FRotations
 {
 	GENERATED_USTRUCT_BODY()
 
-	TStaticArray<FRotator, 10> iRotationBuffer;
+	TStaticArray<FRotator, 3> iRotationBuffer;
 
 	FRotator getMeanRotator()
 	{
@@ -25,7 +25,7 @@ struct FRotations
 		float tSumRoll = 0;
 		float tSumYaw = 0;
 
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			FRotator tCurrentRotator = iRotationBuffer[i];
 
@@ -35,9 +35,9 @@ struct FRotations
 		}
 
 		FRotator tSmoothedRotator = FRotator();
-		tSmoothedRotator.Roll = tSumYaw / 10;
-		tSmoothedRotator.Pitch = tSumPitch / 10;
-		tSmoothedRotator.Yaw = tSumRoll / 10;
+		tSmoothedRotator.Roll = tSumRoll / 3;
+		tSmoothedRotator.Pitch = tSumPitch / 3;
+		tSmoothedRotator.Yaw = tSumYaw / 3;
 
 		return tSmoothedRotator;
 	}

@@ -100,6 +100,7 @@ UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const FObjectInitializer&
 /* Connect the Kinect. */
 void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 {
+	UE_LOG(UnrealMeInit, Log, TEXT("Connecting to Kinect."));
 	iMultiUser = aMultiUser;
 
 	/* Variable default initializations */
@@ -191,6 +192,8 @@ void UUnrealMeKinectV2Connector::update()
 /* Disconnect the Kinect. */
 void UUnrealMeKinectV2Connector::disconnectKinect()
 {
+	UE_LOG(UnrealMeInit, Log, TEXT("Disconnecting from Kinect."));
+
 	iRotationXOffset = 0;
 	iRotationYOffset = 0;
 	iRotationZOffset = 0;
@@ -427,7 +430,7 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 							iRotationBufferSize = 0;
 						}*/
 
-						/* Update the value of the current key value pair in the multi user map if neccessary. */
+						/* Update the value of the current key value pair in the multi user map if necessary. */
 						if (iMultiUser)
 						{
 							tUsersSkeletonData[i] = tSkeletonData;
