@@ -27,11 +27,23 @@ public:
     //FVector SkelControl_LeftHandPos;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_SpineBasePureRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_SpineMidPureRot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_NeckPureRot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FVector SkelControl_SpineBasePos;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FVector SkelControl_SpineMidPos;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FVector SkelControl_NeckPos;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_TorsoRotationByShoulders;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	FRotator SkelControl_TorsoRotationByHips;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_SpineBaseRot;

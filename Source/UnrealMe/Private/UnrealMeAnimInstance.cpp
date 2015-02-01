@@ -31,9 +31,16 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 
 	//SkelControl_LeftHandPos = UUnrealMeKinectV2Connector::getJointPosition(7);
 
+	SkelControl_SpineBasePureRot = UUnrealMeKinectV2Connector::getJointRotation(0);
+	SkelControl_SpineMidPureRot = UUnrealMeKinectV2Connector::getJointRotation(1);
+	SkelControl_NeckPureRot = UUnrealMeKinectV2Connector::getJointRotation(2);
+
 	SkelControl_SpineBasePos = UUnrealMeKinectV2Connector::getJointPosition(0);
 	SkelControl_SpineMidPos = UUnrealMeKinectV2Connector::getJointPosition(1);
 	SkelControl_NeckPos = UUnrealMeKinectV2Connector::getJointPosition(2);
+
+	SkelControl_TorsoRotationByShoulders = UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
+	SkelControl_TorsoRotationByHips = UUnrealMeKinectV2Connector::getJointRotationByPosition(12, 16);
 
 	SkelControl_SpineBaseRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(0, 2);//UUnrealMeKinectV2Connector::getJointRotation(0);
 	SkelControl_SpineMidRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(0, 2);//UUnrealMeKinectV2Connector::getJointRotation(1);

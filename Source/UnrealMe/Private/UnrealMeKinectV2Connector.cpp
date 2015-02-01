@@ -374,12 +374,12 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 							FQuat tQuaternionRotation = FQuat(tJointOrientation.x, tJointOrientation.y, tJointOrientation.z, tJointOrientation.w);//convertRotationToUnrealSpace(tJointOrientation);
 							FRotator tKinectRotator = tQuaternionRotation.Rotator();
 
-							FRotator tUnrealRotator = FRotator();
+							/*FRotator tUnrealRotator = FRotator();
 							tUnrealRotator.Roll = tKinectRotator.Yaw;
 							tUnrealRotator.Pitch = tKinectRotator.Pitch;
-							tUnrealRotator.Yaw = tKinectRotator.Roll;
+							tUnrealRotator.Yaw = tKinectRotator.Roll;*/
 
-							tSkeletonRotationData[j] = tUnrealRotator;							
+							tSkeletonRotationData[j] = tKinectRotator;							
 							
 							//iBuffer[j].addRotatorAt(iRotationBufferSize, tKinectRotator);
 						}
