@@ -96,8 +96,6 @@ UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const FObjectInitializer&
 /*
  * KINECT CONTROL FUNCTIONS FOR THE APPLICATION
  */
-
-/* Connect the Kinect. */
 void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 {
 	UE_LOG(UnrealMeInit, Log, TEXT("Connecting to Kinect."));
@@ -152,7 +150,6 @@ void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 	}
 }
 
-/* High-level update method => does all neccessary internal logic and is used to be called from Unreal's Tick event. */
 void UUnrealMeKinectV2Connector::update()
 {
 	if (!iBodyFrameReader)
@@ -189,7 +186,6 @@ void UUnrealMeKinectV2Connector::update()
 	SafeRelease(tBodyFrame);
 }
 
-/* Disconnect the Kinect. */
 void UUnrealMeKinectV2Connector::disconnectKinect()
 {
 	UE_LOG(UnrealMeInit, Log, TEXT("Disconnecting from Kinect."));
@@ -275,7 +271,6 @@ void UUnrealMeKinectV2Connector::initializeJointToSkeletalBoneMapping()
 	*/
 }
 
-/* Checks if the passed torso delta is an outlier (which is defined by the passed threshold). */
 FVector UUnrealMeKinectV2Connector::checkDeltaForOutliers(int32 aThreshold, FVector aDelta)
 {
 	/* If any of the dimensions is above the threshold the delta is discarded. */
@@ -289,7 +284,6 @@ FVector UUnrealMeKinectV2Connector::checkDeltaForOutliers(int32 aThreshold, FVec
 	}
 }
 
-/* Update loops for the Kinect data. */
 void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody** aBodies)
 {
 	HRESULT tCurrentOperation;
@@ -450,7 +444,6 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 	}
 }
 
-/* Helper method to update the global collections for multi user tracking. */
 void UUnrealMeKinectV2Connector::updateData(TStaticArray<std::map<int, FVector>, 6> aPositions, TStaticArray<FVector, 6> aDeltas, TStaticArray<CameraSpacePoint, 6> aPreviousTorsoPositions)
 {
 	for (int i = 0; i < 6; i++)
@@ -465,19 +458,16 @@ void UUnrealMeKinectV2Connector::updateData(TStaticArray<std::map<int, FVector>,
  * FUNCTIONS FOR SINGLE USER TRACKING
  */
 
-/** Get the joint position corresponding to the passed id. */
 FVector UUnrealMeKinectV2Connector::getJointPosition(int32 aJointId)
 {
 	return iSkeletonData[aJointId];
 }
 
-/** Get the current torso delta. */
 FVector UUnrealMeKinectV2Connector::getCurrentTorsoDelta()
 {
 	return iCurrentTorsoDelta;
 }
 
-/** Get the joint orientation corresponding to the passed id */
 FRotator UUnrealMeKinectV2Connector::getJointRotation(int32 aJointId)
 {
 	FRotator tBack = FRotator();
@@ -487,7 +477,6 @@ FRotator UUnrealMeKinectV2Connector::getJointRotation(int32 aJointId)
 	return tBack;
 }
 
-/** Derive the joint rotation from the relative position of one joint to another */
 FRotator UUnrealMeKinectV2Connector::getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint)
 {
 	FVector tStartJointPos;
@@ -526,20 +515,17 @@ FRotator UUnrealMeKinectV2Connector::getJointRotationByPosition(int32 aStartJoin
 * FUNCTIONS FOR MULTI USER TRACKING
 */
 
-/** Get the joint position corresponding to the passed joint id and user id. */
 FVector UUnrealMeKinectV2Connector::getUserJointPosition(int32 aUserId, int32 aJointId)
 {
 	std::map<int, FVector> tTargetUserSkeletonData = iUsersSkeletonData[aUserId];
 	return tTargetUserSkeletonData[aJointId];
 }
 
-/** Get the amount of currently tracked user. */
 int32 UUnrealMeKinectV2Connector::getTrackedUsersCount()
 {
 	return iTrackedUsers;
 }
 
-/* Check if the user with the given id is tracked. */
 bool UUnrealMeKinectV2Connector::isUserTracked(int32 aUserId)
 {
 	bool tBack;
