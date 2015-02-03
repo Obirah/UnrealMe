@@ -543,7 +543,6 @@ bool UUnrealMeKinectV2Connector::isUserTracked(int32 aUserId)
 	return tBack;
 }
 
-/* Get the bone name corresponding to the passed id. */
 FString UUnrealMeKinectV2Connector::getBoneNameByJoint(int32 aJointId)
 {
 	return iJointToSkeletalBone[aJointId];
