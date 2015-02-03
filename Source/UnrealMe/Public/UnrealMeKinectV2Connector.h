@@ -110,6 +110,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FRotator getJointRotation(int32 aJointId);
 	/** Derive the joint rotation from the relative position of one joint to another */
+	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static FRotator getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint);
 
 	/* MULTI USER TRACKING FUNCTIONS FOR THE APPLICATION */

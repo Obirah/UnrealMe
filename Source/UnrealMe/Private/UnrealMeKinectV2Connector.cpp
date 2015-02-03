@@ -350,7 +350,7 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 								/* Save the delta of the torso between the current and the previous update iteration. */
 								if (!iMultiUser)
 								{
-									if (iPreviousTorsoPos.X != 0 && iPreviousTorsoPos.Y != 0 && iPreviousTorsoPos.Z != 0)
+									if (iPreviousTorsoPos.X != 0 || iPreviousTorsoPos.Y != 0 || iPreviousTorsoPos.Z != 0)
 									{
 										CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
 										iCurrentTorsoDelta = checkDeltaForOutliers(10, convertPositionToUnrealSpace(tTempDelta));
