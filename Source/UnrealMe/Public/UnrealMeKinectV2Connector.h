@@ -12,6 +12,7 @@
 #include "HideWindowsPlatformTypes.h"
 #include "UnrealMeKinectV2Connector.generated.h"
 
+/** Experimental struct for future data structure optimizations. */
 USTRUCT()
 struct FRotations
 {
@@ -53,7 +54,7 @@ struct FRotations
 	}
 };
 
-/* Safe release for interfaces */
+/** Safe release for interfaces */
 template<class Interface>
 inline void SafeRelease(Interface *& aInterfaceToRelease)
 {
