@@ -36,56 +36,7 @@ static int iRotationXOffset = 0;
 static int iRotationYOffset = 0;
 static int iRotationZOffset = 0;
 
-/*
- * HELPER FUNCTIONS (don't belong to the actual class)
- */
-
-/* Convert absolute position to relative position */
-CameraSpacePoint getRelativePosition(CameraSpacePoint aTorso, CameraSpacePoint aOtherJoint)
-{
-	CameraSpacePoint tBack = CameraSpacePoint();
-
-	tBack.X = aTorso.X - aOtherJoint.X;
-	tBack.Y = aTorso.Y - aOtherJoint.Y;
-	tBack.Z = aTorso.Z - aOtherJoint.Z;
-
-	return tBack;
-}
-
-/* 
- * Conversion from Kinect to Unreal coordinate system:
- * Kinect X	=> Unreal -Y
- * Kinect Y => Unreal -Z
- * Kinect Z => Unreal X
- */
-FVector convertPositionToUnrealSpace(CameraSpacePoint aPosition)
-{
-	return FVector(aPosition.Z * 100, aPosition.X * -100, aPosition.Y * -100);
-}
-
-FQuat convertRotationToUnrealSpace(Vector4 aQuaternion)
-{
-	return FQuat(aQuaternion.z, aQuaternion.x, aQuaternion.y, aQuaternion.w);
-}
-
-FQuat getQuaternionFromVectors(FVector aVector1, FVector aVector2)
-{
-	FQuat tQuaternion = FQuat();
-	FVector tCrossProduct = FVector::CrossProduct(aVector1, aVector2);
-	
-	tQuaternion.X = tCrossProduct.X;
-	tQuaternion.Y = tCrossProduct.Y;
-	tQuaternion.Z = tCrossProduct.Z;
-
-	float tV1size = aVector1.Size();
-	float tV2size = aVector2.Size();
-
-	float tQuatW = FMath::Sqrt(FMath::Pow(tV1size, 2) * FMath::Pow(tV2size, 2)) + FVector::DotProduct(aVector1, aVector2);
-	tQuaternion.W = tQuatW;
-
-	tQuaternion.Normalize();
-	return tQuaternion;
-}
+static CameraSpacePoint iCurrentTorsoOffset;
 
 /* DEFAULT CONSTRUCTOR (doing variable initializations) */
 UUnrealMeKinectV2Connector::UUnrealMeKinectV2Connector(const FObjectInitializer& PCIP) : Super(PCIP)
@@ -107,6 +58,11 @@ void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 	iTrackedUsers = 0;
 	iMultiUser = false;
 	iRotationBufferSize = 0;
+
+	iCurrentTorsoOffset = CameraSpacePoint();
+	iCurrentTorsoOffset.X = 0;
+	iCurrentTorsoOffset.Y = 0;
+	iCurrentTorsoOffset.Z = 0;
 
 	/*iBuffer = TStaticArray<FRotations, 24>();*/
 	for (int i = 0; i < 25; i++)
@@ -139,7 +95,7 @@ void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 		{
 			UE_LOG(UnrealMeInit, Log, TEXT("Body frame source successfully initialized."));
 			tCurrentOperation = tBodyFrameSource->OpenReader(&iBodyFrameReader);
-			/* If the initialization worke so far, we can initialize one of the maps we'll need later on. */
+			/* If the initialization worked so far, we can initialize one of the maps we'll need later on. */
 			initializeTrackingStateMap();
 			initializeJointToSkeletalBoneMapping();
 		}
@@ -337,13 +293,13 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 							/* Just convert and save the first spine joint (represented by index 0), it will be related to the torso later. */
 							if (j == 0)
 							{
-								tSkeletonData[j] = convertPositionToUnrealSpace(tPosition);								
+								tSkeletonData[j] = UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tPosition);								
 							}
 
 							/* Index 1 represents the torso joint that we use as a reference for all the other joints later. */
 							if (j == 1)
 							{
-								tSkeletonData[j] = convertPositionToUnrealSpace(tPosition);
+								tSkeletonData[j] = UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tPosition);
 								tTorsoPosition = tPosition;
 								tTorsoInitialized = true;
 
@@ -352,9 +308,17 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 								{
 									if (iPreviousTorsoPos.X != 0 || iPreviousTorsoPos.Y != 0 || iPreviousTorsoPos.Z != 0)
 									{
-										CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
-										iCurrentTorsoDelta = checkDeltaForOutliers(10, convertPositionToUnrealSpace(tTempDelta));
-										
+
+										iPreviousTorsoPos.X += iCurrentTorsoOffset.X;
+										iPreviousTorsoPos.Y += iCurrentTorsoOffset.Y;
+										iPreviousTorsoPos.Z += iCurrentTorsoOffset.Z;
+
+										tTorsoPosition.X += iCurrentTorsoOffset.X;
+										tTorsoPosition.Y += iCurrentTorsoOffset.Y;
+										tTorsoPosition.Z += iCurrentTorsoOffset.Z;
+
+										CameraSpacePoint tTempDelta = UUnrealMeCoordinateHelper::getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
+										iCurrentTorsoDelta = checkDeltaForOutliers(10, UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tTempDelta));
 									}
 
 									iPreviousTorsoPos = tTorsoPosition;
@@ -363,8 +327,8 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 								{
 									if (iUsersPreviousTorsoPos[i].X != 0 && iUsersPreviousTorsoPos[i].Y != 0 && iUsersPreviousTorsoPos[i].Z != 0)
 									{
-										CameraSpacePoint tTempDelta = getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
-										tUsersTorsoDeltas[i] = checkDeltaForOutliers(10, convertPositionToUnrealSpace(tTempDelta));
+										CameraSpacePoint tTempDelta = UUnrealMeCoordinateHelper::getRelativePosition(iPreviousTorsoPos, tTorsoPosition);
+										tUsersTorsoDeltas[i] = checkDeltaForOutliers(10, UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tTempDelta));
 									}
 
 									iUsersPreviousTorsoPos[i] = tTorsoPosition;
@@ -375,7 +339,7 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 								tPosition.Y = tSkeletonData[j - 1].Y;
 								tPosition.Z = tSkeletonData[j - 1].Z;
 
-								tPosition = getRelativePosition(tTorsoPosition, tPosition);
+								tPosition = UUnrealMeCoordinateHelper::getRelativePosition(tTorsoPosition, tPosition);
 
 								tSkeletonData[j-1] = FVector(tPosition.X, tPosition.Y, tPosition.Z);
 							}
@@ -383,11 +347,11 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 							/* If the torso's initialized we can update all other joints. */
 							if (tTorsoInitialized && j > 1)
 							{
-								tPosition = getRelativePosition(tTorsoPosition, tPosition);
-								tSkeletonData[j] = convertPositionToUnrealSpace(tPosition);								
+								tPosition = UUnrealMeCoordinateHelper::getRelativePosition(tTorsoPosition, tPosition);
+								tSkeletonData[j] = UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tPosition);
 							}
 
-							FQuat tQuaternionRotation = FQuat(tJointOrientation.x, tJointOrientation.y, tJointOrientation.z, tJointOrientation.w);//convertRotationToUnrealSpace(tJointOrientation);
+							FQuat tQuaternionRotation = UUnrealMeCoordinateHelper::convertRotationToUnrealSpace(tJointOrientation); //FQuat(tJointOrientation.x, tJointOrientation.y, tJointOrientation.z, tJointOrientation.w);
 							FRotator tKinectRotator = tQuaternionRotation.Rotator();
 
 							/*FRotator tUnrealRotator = FRotator();
@@ -568,4 +532,9 @@ int32 UUnrealMeKinectV2Connector::offsetRotation(int32 aAxis, int32 aDegrees)
     }
 
 	return tBack;
+}
+
+void UUnrealMeKinectV2Connector::setCurrentTorsoOffset(FVector aTorsoOffset)
+{
+	iCurrentTorsoOffset = UUnrealMeCoordinateHelper::convertPositionToKinectSpace(aTorsoOffset);
 }

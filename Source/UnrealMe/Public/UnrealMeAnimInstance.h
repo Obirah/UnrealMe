@@ -45,6 +45,9 @@ public:
 	APawn* iOwningPawn;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	bool SkelControl_UsePureRotations;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_SpineBasePureRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_SpineMidPureRot;
@@ -107,6 +110,13 @@ public:
 	FRotator SkelControl_RightCalfRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	FRotator SkelControl_RightFootRot;
+
+	/* Update the rotation variables with the pure rotations of the joints stemming from a quaternion rotation */
+	virtual void updateRotations();
+	/* Update the rotation variables with rotations calculated from relative joint positions */
+	virtual void updateRotationsByPositions();
+	/* JUST A TEST: Update with calculated rotations and smoothing */
+	virtual void updateRotationsByPositionsWithSmoothing();
 
 	UFUNCTION(BlueprintCallable, Category = KinectV2Animation)
 	static FRotator getJointRotation(EJointRotationType aJoint);

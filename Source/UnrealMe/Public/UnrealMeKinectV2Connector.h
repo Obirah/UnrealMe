@@ -10,6 +10,7 @@
 #include <Kinect.h>
 #include <map>
 #include "HideWindowsPlatformTypes.h"
+#include "UnrealMeCoordinateHelper.h"
 #include "UnrealMeKinectV2Connector.generated.h"
 
 /** Experimental struct for future data structure optimizations. */
@@ -132,4 +133,6 @@ public:
 	/** Experimental function for offsetting purposes. */
 	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
 	static int32 offsetRotation(int32 aAxis, int32 aDegrees);
+	UFUNCTION(BlueprintCallable, Category = "KinectV2Connector")
+    static void setCurrentTorsoOffset(FVector aTorsoOffset);
 };
