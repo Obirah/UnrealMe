@@ -351,15 +351,12 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 								tSkeletonData[j] = UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tPosition);
 							}
 
-							FQuat tQuaternionRotation = UUnrealMeCoordinateHelper::convertRotationToUnrealSpace(tJointOrientation); //FQuat(tJointOrientation.x, tJointOrientation.y, tJointOrientation.z, tJointOrientation.w);
+							FQuat tQuaternionRotation = FQuat(tJointOrientation.x, tJointOrientation.y, tJointOrientation.z, tJointOrientation.w);//UUnrealMeCoordinateHelper::convertQuatRotationToUnrealSpace(tJointOrientation);
 							FRotator tKinectRotator = tQuaternionRotation.Rotator();
 
-							/*FRotator tUnrealRotator = FRotator();
-							tUnrealRotator.Roll = tKinectRotator.Yaw;
-							tUnrealRotator.Pitch = tKinectRotator.Pitch;
-							tUnrealRotator.Yaw = tKinectRotator.Roll;*/
+							FRotator tUnrealRotator = UUnrealMeCoordinateHelper::convertQuatRotationToRotator(tJointOrientation);//UUnrealMeCoordinateHelper::convertRotationToUnrealSpace(tKinectRotator);
 
-							tSkeletonRotationData[j] = tKinectRotator;							
+							tSkeletonRotationData[j] = tUnrealRotator;							
 							
 							//iBuffer[j].addRotatorAt(iRotationBufferSize, tKinectRotator);
 						}

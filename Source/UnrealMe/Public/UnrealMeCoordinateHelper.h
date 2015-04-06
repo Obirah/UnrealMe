@@ -22,6 +22,8 @@ public:
 	*/
 	static FVector convertPositionToUnrealSpace(CameraSpacePoint aPosition);
 
+	static FVector convertPositionToUnrealSpace(float aX, float aY, float aZ);
+
 	/*
 	* Conversion from Unreal to Kinect coordinate system:
 	* Unreal -Y => Kinect X
@@ -30,9 +32,21 @@ public:
 	*/
 	static CameraSpacePoint convertPositionToKinectSpace(FVector aPosition);
 
+	static FRotator convertRotationToUnrealSpace(FRotator aRotator);
+
 	/* Convert a quaternion rotation from Kinect to Unreal space. */
-	static FQuat convertRotationToUnrealSpace(Vector4 aQuaternion);
+	static FQuat convertQuatRotationToUnrealSpace(Vector4 aQuaternion);
+
+	static FQuat convertQuatRotationToUnrealSpace(float aX, float aY, float aZ, float aW);
+
+	static FRotator convertQuatRotationToRotator(Vector4 aQuaternion);
 
 	/* Create a quaternion rotation from two vectors. */
 	static FQuat getQuaternionFromVectors(FVector aVector1, FVector aVector2);
+
+	static FRotator convertQuatRotationToRotator(FQuat aQuaternion, int32 aHomogenous);
+
+	static FVector QuaternionToEuler(Vector4 q);
+
+	static double RadianToDegree(double angle);
 };

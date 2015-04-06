@@ -6,6 +6,7 @@
 int32 iFrameCount = 0;
 TStaticArray<FRotations, 14> iBuffer;
 bool iBuffered = false;
+bool iVRPN = true;
 static std::map<EJointRotationType, FRotator> iRotations;
 
 UUnrealMeAnimInstance::UUnrealMeAnimInstance(const FObjectInitializer& PCIP)
@@ -28,12 +29,22 @@ void UUnrealMeAnimInstance::NativeInitializeAnimation()
 		}
 	}
 
+	if (iVRPN)
+	{
+		UUnrealMeVRPNConnector::initializeTracker();
+	}
+
 	UE_LOG(UnrealMe, Log, TEXT("Animation initialized."));
 }
 
 void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 {
 	Super::NativeUpdateAnimation(aDeltaTime);
+
+	if (iVRPN)
+	{
+		UUnrealMeVRPNConnector::callTrackerMainloop();
+	}
 
 	/* Currently stable method. */
 	if (!iBuffered)
@@ -43,21 +54,48 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 		//tRotations[EJointRotationType::JR_SPINE_BY_S] = UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
 
 		/* Update the core */
-		SkelControl_SpineBasePureRot = UUnrealMeKinectV2Connector::getJointRotation(0);
-		SkelControl_SpineMidPureRot = UUnrealMeKinectV2Connector::getJointRotation(1);
-		SkelControl_NeckPureRot = UUnrealMeKinectV2Connector::getJointRotation(2);
-
-		SkelControl_SpineBasePos = UUnrealMeKinectV2Connector::getJointPosition(0);
-		SkelControl_SpineMidPos = UUnrealMeKinectV2Connector::getJointPosition(1);
-		SkelControl_NeckPos = UUnrealMeKinectV2Connector::getJointPosition(2);
-
-		if (SkelControl_UsePureRotations)
+		if (iVRPN)
 		{
-			updateRotations();
+			SkelControl_SpineBasePureRot = UUnrealMeVRPNConnector::getBoneRotation(3);
+			SkelControl_SpineMidPureRot = UUnrealMeVRPNConnector::getBoneRotation(2);
+			SkelControl_NeckPureRot = UUnrealMeVRPNConnector::getBoneRotation(1);
+
+			SkelControl_SpineBasePos = UUnrealMeVRPNConnector::getBonePosition(3);
+			SkelControl_SpineMidPos = UUnrealMeVRPNConnector::getBonePosition(2);
+			SkelControl_NeckPos = UUnrealMeVRPNConnector::getBonePosition(1);
 		}
 		else
 		{
-			updateRotationsByPositions();
+			SkelControl_SpineBasePureRot = UUnrealMeKinectV2Connector::getJointRotation(0);
+			SkelControl_SpineMidPureRot = UUnrealMeKinectV2Connector::getJointRotation(1);
+			SkelControl_NeckPureRot = UUnrealMeKinectV2Connector::getJointRotation(2);
+
+			SkelControl_SpineBasePos = UUnrealMeKinectV2Connector::getJointPosition(0);
+			SkelControl_SpineMidPos = UUnrealMeKinectV2Connector::getJointPosition(1);
+			SkelControl_NeckPos = UUnrealMeKinectV2Connector::getJointPosition(2);
+		}		
+
+		if (SkelControl_UsePureRotations)
+		{
+			if (iVRPN)
+			{
+				updateRotationsVRPN();
+			}
+			else
+			{
+				updateRotations();
+			}			
+		}
+		else
+		{
+			if (iVRPN)
+			{
+				updateRotationsByPositionsVRPN();
+			}
+			else
+			{
+				updateRotationsByPositions();
+			}			
 		}
 		
 
@@ -141,6 +179,79 @@ void UUnrealMeAnimInstance::updateRotationsByPositions()
 	SkelControl_RightThighRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(17, 16);
 	SkelControl_RightCalfRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(18, 17);
 	SkelControl_RightFootRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(19, 18);
+}
+
+void UUnrealMeAnimInstance::updateRotationsVRPN()
+{
+	/* Need to be set so that this method is corresponding to updateRotationsByPositions */
+	SkelControl_TorsoRotationByShoulders = UUnrealMeVRPNConnector::getBoneRotation(1);
+	SkelControl_TorsoRotationByHips = UUnrealMeVRPNConnector::getBoneRotation(3);
+
+	SkelControl_SpineBaseRot = UUnrealMeVRPNConnector::getBoneRotation(3);
+	SkelControl_SpineMidRot = UUnrealMeVRPNConnector::getBoneRotation(2);
+	SkelControl_NeckRot = UUnrealMeVRPNConnector::getBoneRotation(0);
+
+	/* Update left arm */
+	SkelControl_LeftUpperarmRot = UUnrealMeVRPNConnector::getBoneRotation(6);
+	SkelControl_LeftLowerarmRot = UUnrealMeVRPNConnector::getBoneRotation(7);
+	SkelControl_LeftHandRot = UUnrealMeVRPNConnector::getBoneRotation(8);
+
+	SkelControl_LeftHandTipRot = UUnrealMeVRPNConnector::getBoneRotation(9);
+	SkelControl_LeftThumbRot = UUnrealMeVRPNConnector::getBoneRotation(9);
+
+	/* Update right arm */
+	SkelControl_RightUpperarmRot = UUnrealMeVRPNConnector::getBoneRotation(12);
+	SkelControl_RightLowerarmRot = UUnrealMeVRPNConnector::getBoneRotation(13);
+	SkelControl_RightHandRot = UUnrealMeVRPNConnector::getBoneRotation(14);
+
+	SkelControl_RightHandTipRot = UUnrealMeVRPNConnector::getBoneRotation(15);
+	SkelControl_RightThumbRot = UUnrealMeVRPNConnector::getBoneRotation(15);
+
+	/* Update left leg */
+	SkelControl_LeftThighRot = UUnrealMeVRPNConnector::getBoneRotation(16);
+	SkelControl_LeftCalfRot = UUnrealMeVRPNConnector::getBoneRotation(17);
+	SkelControl_LeftFootRot = UUnrealMeVRPNConnector::getBoneRotation(18);
+
+	/* Update right leg */
+	SkelControl_RightThighRot = UUnrealMeVRPNConnector::getBoneRotation(20);
+	SkelControl_RightCalfRot = UUnrealMeVRPNConnector::getBoneRotation(21);
+	SkelControl_RightFootRot = UUnrealMeVRPNConnector::getBoneRotation(22);
+}
+
+void UUnrealMeAnimInstance::updateRotationsByPositionsVRPN()
+{
+	SkelControl_TorsoRotationByShoulders = UUnrealMeVRPNConnector::getJointRotationByPosition(5, 11);// UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
+	SkelControl_TorsoRotationByHips = UUnrealMeVRPNConnector::getJointRotationByPosition(16, 20); //UUnrealMeKinectV2Connector::getJointRotationByPosition(12, 16);
+
+	SkelControl_SpineBaseRot = UUnrealMeVRPNConnector::getJointRotationByPosition(2, 1);
+	SkelControl_SpineMidRot = UUnrealMeVRPNConnector::getJointRotationByPosition(2, 1);
+	SkelControl_NeckRot = UUnrealMeVRPNConnector::getJointRotationByPosition(2, 1);
+
+	/* Update left arm */
+	SkelControl_LeftUpperarmRot = UUnrealMeVRPNConnector::getJointRotationByPosition(5, 6);
+	SkelControl_LeftLowerarmRot = UUnrealMeVRPNConnector::getJointRotationByPosition(6, 7);
+	SkelControl_LeftHandRot = UUnrealMeVRPNConnector::getJointRotationByPosition(7, 8);
+
+	SkelControl_LeftHandTipRot = UUnrealMeVRPNConnector::getJointRotationByPosition(8, 9);
+	SkelControl_LeftThumbRot = UUnrealMeVRPNConnector::getJointRotationByPosition(8, 9);
+
+	/* Update right arm */
+	SkelControl_RightUpperarmRot = UUnrealMeVRPNConnector::getJointRotationByPosition(11, 12);
+	SkelControl_RightLowerarmRot = UUnrealMeVRPNConnector::getJointRotationByPosition(12, 13);
+	SkelControl_RightHandRot = UUnrealMeVRPNConnector::getJointRotationByPosition(13, 14);
+
+	SkelControl_RightHandTipRot = UUnrealMeVRPNConnector::getJointRotationByPosition(14, 15);
+	SkelControl_RightThumbRot = UUnrealMeVRPNConnector::getJointRotationByPosition(14, 15);
+
+	/* Update left leg */
+	SkelControl_LeftThighRot = UUnrealMeVRPNConnector::getJointRotationByPosition(17, 16);
+	SkelControl_LeftCalfRot = UUnrealMeVRPNConnector::getJointRotationByPosition(18, 17);
+	SkelControl_LeftFootRot = UUnrealMeVRPNConnector::getJointRotationByPosition(19, 18);
+
+	/* Update right leg */
+	SkelControl_RightThighRot = UUnrealMeVRPNConnector::getJointRotationByPosition(21, 20);
+	SkelControl_RightCalfRot = UUnrealMeVRPNConnector::getJointRotationByPosition(22, 21);
+	SkelControl_RightFootRot = UUnrealMeVRPNConnector::getJointRotationByPosition(23, 22);
 }
 
 void UUnrealMeAnimInstance::updateRotationsByPositionsWithSmoothing()

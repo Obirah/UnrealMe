@@ -6,7 +6,7 @@ public class UnrealMe : ModuleRules
 {
 	public UnrealMe(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "K4WLib" });
-		DynamicallyLoadedModuleNames.AddRange(new string[] {"K4WLib"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "K4WLib", "VRPNLib" });
+		DynamicallyLoadedModuleNames.AddRange(new string[] {"K4WLib", "VRPNLib"});
 	}
 }

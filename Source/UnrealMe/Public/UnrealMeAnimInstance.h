@@ -5,6 +5,7 @@
 #include "Animation/AnimInstance.h"
 #include "UnrealMeVRPN.h"
 #include "UnrealMeKinectV2Connector.h"
+#include "UnrealMeVRPNConnector.h"
 #include "UnrealMeAnimInstance.generated.h"
 
 UENUM(BlueprintType)
@@ -115,6 +116,10 @@ public:
 	virtual void updateRotations();
 	/* Update the rotation variables with rotations calculated from relative joint positions */
 	virtual void updateRotationsByPositions();
+
+	virtual void updateRotationsVRPN();
+	/* Update the rotation variables with rotations calculated from relative joint positions */
+	virtual void updateRotationsByPositionsVRPN();
 	/* JUST A TEST: Update with calculated rotations and smoothing */
 	virtual void updateRotationsByPositionsWithSmoothing();
 
