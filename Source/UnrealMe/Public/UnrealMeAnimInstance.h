@@ -40,7 +40,7 @@ class UNREALME_API UUnrealMeAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 private:
-
+	UUnrealMeVRPNConnector* iVrpnConnector;
 public:
 	UUnrealMeAnimInstance(const FObjectInitializer& PCIP);
 	APawn* iOwningPawn;	

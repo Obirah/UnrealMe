@@ -22,26 +22,40 @@ UCLASS()
 class UNREALME_API UUnrealMeVRPNConnector : public UObject
 {
 	GENERATED_BODY()
-	
+private:
+	static UUnrealMeVRPNConnector *iSingleton;
+	TArray<vrpn_Tracker_Remote*> iTrackerRemotes;
+	vrpn_Connection		*iConnection;
+
+	bool iConnected;
+
+	int32 iPosArrLen;
+	int32 iRotArrLen;
+	int32 iConnectionPort;
 public:
+	UUnrealMeVRPNConnector(const FObjectInitializer& PCIP);
+	virtual void BeginDestroy() override;
+
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static void initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress);
+	void initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static void destroyConnection();
+	void callMainloop();
+
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static void callMainloop();
+	FVector getBonePosition(int32 aBoneId);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static FVector getBonePosition(int32 aBoneId);
+	FRotator getBoneRotation(int32 aBoneId);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static FRotator getBoneRotation(int32 aBoneId);
+	FQuat getBoneQuaternion(int32 aBoneId);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static FQuat getBoneQuaternion(int32 aBoneId);
+	float getBoneAcceleration(int32 aBoneId);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static float getBoneAcceleration(int32 aBoneId);
+	float getBoneVelocity(int32 aBoneId);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static float getBoneVelocity(int32 aBoneId);
+	FRotator getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static FRotator getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint);
+	bool isConnected();
+
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static bool isConnected();
+	static UUnrealMeVRPNConnector* getInstance();
 };

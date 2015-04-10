@@ -3,22 +3,30 @@
 #include "UnrealMe.h"
 #include "UnrealMeVRPNConnector.h"
 
-int	CONNECTION_PORT = vrpn_DEFAULT_LISTEN_PORT_NO;	// Port for connection to listen on
-
-vrpn_Connection		*cConnection;
-UnrealMeVRPNBone* cBones;
-int cPosArrLen;
-int cRotArrLen;
-
-bool cConnected = false;
-
-int32 cTrackerRemoteCount = 0;
-static TArray<vrpn_Tracker_Remote*> cTrackerRemotes;
-
 typedef struct _VRPN_CB_INFO
 {
 	int tTrackerRemoteIndex;
 }VRPN_CB_INFO;
+
+static int32 iTrackerRemoteCount;
+static UnrealMeVRPNBone* iBones;
+
+UUnrealMeVRPNConnector::UUnrealMeVRPNConnector(const FObjectInitializer& PCIP) : Super(PCIP)
+{
+	iConnectionPort = vrpn_DEFAULT_LISTEN_PORT_NO;
+
+	iPosArrLen = 3;
+	iRotArrLen = 4;
+
+	iBones = new UnrealMeVRPNBone[24];
+
+	for (int i = 0; i < 23; i++)
+	{
+		//assigns pointers to the value arrays to each bone
+		UnrealMeVRPNBone tTemp = UnrealMeVRPNBone(i);
+		iBones[i] = tTemp;
+	}
+}
 
 void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
 {
@@ -29,7 +37,7 @@ void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
 
 	int tAccessIndex;
 
-	if (cTrackerRemoteCount > 1)
+	if (iTrackerRemoteCount > 1)
 	{
 		tAccessIndex = tIndex;
 	}
@@ -43,7 +51,7 @@ void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
 	const float tPosZ = aTracker.pos[2];
 
 	FVector tCurrentPosition = UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tPosX, tPosY, tPosZ);
-	cBones[tAccessIndex].setCurrentPosition(tCurrentPosition);
+	iBones[tAccessIndex].setCurrentPosition(tCurrentPosition);
 
 	const float tQuatX = aTracker.quat[0];
 	const float tQuatY = aTracker.quat[1];
@@ -51,17 +59,32 @@ void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
 	const float tQuatW = aTracker.quat[3];
 
 	FRotator tCurrentRotation = UUnrealMeCoordinateHelper::convertQuatRotationToRotator(UUnrealMeCoordinateHelper::convertQuatRotationToUnrealSpace(tQuatX, tQuatY, tQuatZ, tQuatW), 0);
-	cBones[tAccessIndex].setCurrentRotation(tCurrentRotation);
+	iBones[tAccessIndex].setCurrentRotation(tCurrentRotation);
 }
 
 void VRPN_CALLBACK handle_vel(void *, const vrpn_TRACKERVELCB aTracker)
 {
-	cBones[aTracker.sensor].setCurrVel(*aTracker.vel);
+	iBones[aTracker.sensor].setCurrVel(*aTracker.vel);
 }
 
 void VRPN_CALLBACK handle_acc(void *, const vrpn_TRACKERACCCB aTracker)
 {
-	cBones[aTracker.sensor].setCurrAcc(*aTracker.acc);
+	iBones[aTracker.sensor].setCurrAcc(*aTracker.acc);
+}
+
+void UUnrealMeVRPNConnector::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	for (int32 i = 0; i < iTrackerRemotes.Num(); i++)
+	{
+		iTrackerRemotes[i]->unregister_change_handler(NULL, handle_pos);
+		iTrackerRemotes[i]->unregister_change_handler(NULL, handle_vel);
+		iTrackerRemotes[i]->unregister_change_handler(NULL, handle_acc);
+	}
+
+	iTrackerRemotes.Empty();
+	delete iBones;
 }
 
 void UUnrealMeVRPNConnector::initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress)
@@ -82,52 +105,25 @@ void UUnrealMeVRPNConnector::initializeConnection(TArray<FString> aTrackerNames,
 		tCurrentTracker->register_change_handler(tCurrentInfo, handle_vel);
 		tCurrentTracker->register_change_handler(tCurrentInfo, handle_acc);
 
-		cTrackerRemotes.Add(tCurrentTracker);
-		cTrackerRemoteCount++;
+		iTrackerRemotes.Add(tCurrentTracker);
+		iTrackerRemoteCount++;
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("VRPN connection initizalized: %s, Trackers: %d"), *tCurrentAddress, cTrackerRemoteCount));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("VRPN connection initizalized: %s, Trackers: %d"), *tCurrentAddress, iTrackerRemoteCount));
 	}	
-	
-	cPosArrLen = 3;
-	cRotArrLen = 4;
-	cBones = new UnrealMeVRPNBone[24];
 
-	for (int i = 0; i < 23; i++)
-	{
-		//assigns pointers to the value arrays to each bone
-		UnrealMeVRPNBone tTemp = UnrealMeVRPNBone(i);
-		cBones[i] = tTemp;
-	}
-
-	cConnected = true;
-}
-
-void UUnrealMeVRPNConnector::destroyConnection()
-{
-	
-	for (int32 i = 0; i < cTrackerRemotes.Num(); i++)
-	{
-		cTrackerRemotes[i]->unregister_change_handler(NULL, handle_pos);
-		cTrackerRemotes[i]->unregister_change_handler(NULL, handle_vel);
-		cTrackerRemotes[i]->unregister_change_handler(NULL, handle_acc);
-	}
-
-	cTrackerRemotes.Empty();
-	delete cBones;
-
-	cTrackerRemoteCount = 0;
+	iConnected = true;
 }
 
 bool UUnrealMeVRPNConnector::isConnected()
 {
-	return cConnected;
+	return iConnected;
 }
 
 void UUnrealMeVRPNConnector::callMainloop()
 {
-	for (int32 i = 0; i < cTrackerRemotes.Num(); i++)
+	for (int32 i = 0; i < iTrackerRemotes.Num(); i++)
 	{
-		cTrackerRemotes[i]->mainloop();
+		iTrackerRemotes[i]->mainloop();
 	}
 
 	vrpn_SleepMsecs(1);
@@ -135,40 +131,40 @@ void UUnrealMeVRPNConnector::callMainloop()
 
 FVector UUnrealMeVRPNConnector::getBonePosition(int32 aBoneId)
 {
-	return cBones[aBoneId].getCurrentPosition();
+	return iBones[aBoneId].getCurrentPosition();
 }
 
 FRotator UUnrealMeVRPNConnector::getBoneRotation(int32 aBoneId)
 {
-	return cBones[aBoneId].getCurrentRotation();
+	return iBones[aBoneId].getCurrentRotation();
 }
 
 FQuat UUnrealMeVRPNConnector::getBoneQuaternion(int32 aBoneId)
 {
 	FQuat tBack;
-	if (cBones[aBoneId].getCurrRot() == NULL){
+	if (iBones[aBoneId].getCurrRot() == NULL){
 		tBack.X = 0.0;
 		tBack.Y = 0.0;
 		tBack.Z = 0.0;
 		tBack.W = 0.0;
 	}
 	else{
-		tBack.X = cBones[aBoneId].getCurrRot()[0];
-		tBack.Y = cBones[aBoneId].getCurrRot()[1];
-		tBack.Z = cBones[aBoneId].getCurrRot()[2];
-		tBack.W = cBones[aBoneId].getCurrRot()[3];
+		tBack.X = iBones[aBoneId].getCurrRot()[0];
+		tBack.Y = iBones[aBoneId].getCurrRot()[1];
+		tBack.Z = iBones[aBoneId].getCurrRot()[2];
+		tBack.W = iBones[aBoneId].getCurrRot()[3];
 	}
 	return tBack;
 }
 
 float UUnrealMeVRPNConnector::getBoneAcceleration(int32 aBoneId)
 {
-	return cBones[aBoneId].getCurrAcc();
+	return iBones[aBoneId].getCurrAcc();
 }
 
 float UUnrealMeVRPNConnector::getBoneVelocity(int32 aBoneId)
 {
-	return cBones[aBoneId].getCurrVel();
+	return iBones[aBoneId].getCurrVel();
 }
 
 FRotator UUnrealMeVRPNConnector::getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint)
@@ -176,7 +172,7 @@ FRotator UUnrealMeVRPNConnector::getJointRotationByPosition(int32 aStartJoint, i
 	FVector tStartJointPos;
 	if (aStartJoint != 1)
 	{
-		tStartJointPos = cBones[aStartJoint].getCurrentPosition();
+		tStartJointPos = iBones[aStartJoint].getCurrentPosition();
 	}
 	else
 	{
@@ -186,7 +182,7 @@ FRotator UUnrealMeVRPNConnector::getJointRotationByPosition(int32 aStartJoint, i
 	FVector tEndJointPos;
 	if (aEndJoint != 1)
 	{
-		tEndJointPos = cBones[aEndJoint].getCurrentPosition();
+		tEndJointPos = iBones[aEndJoint].getCurrentPosition();
 	}
 	else
 	{
@@ -203,4 +199,14 @@ FRotator UUnrealMeVRPNConnector::getJointRotationByPosition(int32 aStartJoint, i
 
 	FRotator tBack = tRelative.Rotation();
 	return tBack;
+}
+
+UUnrealMeVRPNConnector* UUnrealMeVRPNConnector::getInstance()
+{
+	if (iSingleton == NULL)
+	{
+		iSingleton = NewObject<UUnrealMeVRPNConnector>();
+	}
+
+	return iSingleton;
 }
