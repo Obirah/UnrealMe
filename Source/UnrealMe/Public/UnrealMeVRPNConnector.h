@@ -25,7 +25,7 @@ class UNREALME_API UUnrealMeVRPNConnector : public UObject
 private:
 	static UUnrealMeVRPNConnector *iSingleton;
 	TArray<vrpn_Tracker_Remote*> iTrackerRemotes;
-	vrpn_Connection		*iConnection;
+	vrpn_Connection	*iConnection;
 
 	bool iConnected;
 

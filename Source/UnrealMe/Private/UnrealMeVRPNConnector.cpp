@@ -11,6 +11,9 @@ typedef struct _VRPN_CB_INFO
 static int32 iTrackerRemoteCount;
 static UnrealMeVRPNBone* iBones;
 
+/* Initialize the singleton instance. */
+UUnrealMeVRPNConnector* UUnrealMeVRPNConnector::iSingleton = NewObject<UUnrealMeVRPNConnector>();
+
 UUnrealMeVRPNConnector::UUnrealMeVRPNConnector(const FObjectInitializer& PCIP) : Super(PCIP)
 {
 	iConnectionPort = vrpn_DEFAULT_LISTEN_PORT_NO;
@@ -203,10 +206,5 @@ FRotator UUnrealMeVRPNConnector::getJointRotationByPosition(int32 aStartJoint, i
 
 UUnrealMeVRPNConnector* UUnrealMeVRPNConnector::getInstance()
 {
-	if (iSingleton == NULL)
-	{
-		iSingleton = NewObject<UUnrealMeVRPNConnector>();
-	}
-
-	return iSingleton;
+	return UUnrealMeVRPNConnector::iSingleton;
 }
