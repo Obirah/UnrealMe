@@ -3,24 +3,47 @@
 #include "UnrealMe.h"
 #include "UnrealMeVRPNConnector.h"
 
-const char	*TRACKER_NAME = "Tracker0@localhost";
 int	CONNECTION_PORT = vrpn_DEFAULT_LISTEN_PORT_NO;	// Port for connection to listen on
 
-vrpn_Tracker_NULL	*cNullTracker;
-vrpn_Tracker_Remote	*cTracker;
 vrpn_Connection		*cConnection;
 UnrealMeVRPNBone* cBones;
 int cPosArrLen;
 int cRotArrLen;
 
-void VRPN_CALLBACK handle_pos(void *, const vrpn_TRACKERCB aTracker)
+bool cConnected = false;
+
+int32 cTrackerRemoteCount = 0;
+static TArray<vrpn_Tracker_Remote*> cTrackerRemotes;
+
+typedef struct _VRPN_CB_INFO
 {
+	int tTrackerRemoteIndex;
+}VRPN_CB_INFO;
+
+void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
+{
+	int tIndex = ((VRPN_CB_INFO*)aParam)->tTrackerRemoteIndex;
+	int tControl = 99;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Callback exploration - Control value: %d, Index from param: %d"), tControl, tIndex));
+
+	int tAccessIndex;
+
+	if (cTrackerRemoteCount > 1)
+	{
+		tAccessIndex = tIndex;
+	}
+	else
+	{
+		tAccessIndex = aTracker.sensor;
+	}
+
 	const float tPosX = aTracker.pos[0];
 	const float tPosY = aTracker.pos[1];
 	const float tPosZ = aTracker.pos[2];
 
 	FVector tCurrentPosition = UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(tPosX, tPosY, tPosZ);
-	cBones[aTracker.sensor].setCurrentPosition(tCurrentPosition);
+	cBones[tAccessIndex].setCurrentPosition(tCurrentPosition);
 
 	const float tQuatX = aTracker.quat[0];
 	const float tQuatY = aTracker.quat[1];
@@ -28,7 +51,7 @@ void VRPN_CALLBACK handle_pos(void *, const vrpn_TRACKERCB aTracker)
 	const float tQuatW = aTracker.quat[3];
 
 	FRotator tCurrentRotation = UUnrealMeCoordinateHelper::convertQuatRotationToRotator(UUnrealMeCoordinateHelper::convertQuatRotationToUnrealSpace(tQuatX, tQuatY, tQuatZ, tQuatW), 0);
-	cBones[aTracker.sensor].setCurrentRotation(tCurrentRotation);
+	cBones[tAccessIndex].setCurrentRotation(tCurrentRotation);
 }
 
 void VRPN_CALLBACK handle_vel(void *, const vrpn_TRACKERVELCB aTracker)
@@ -41,28 +64,72 @@ void VRPN_CALLBACK handle_acc(void *, const vrpn_TRACKERACCCB aTracker)
 	cBones[aTracker.sensor].setCurrAcc(*aTracker.acc);
 }
 
-void UUnrealMeVRPNConnector::initializeTracker()
+void UUnrealMeVRPNConnector::initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress)
 {
-	fprintf(stderr, "Tracker's name is %s.\n", TRACKER_NAME);
-	cTracker = new vrpn_Tracker_Remote(TRACKER_NAME);
-	printf("Tracker update: '.' = pos, '/' = vel, '~' = acc\n");
-	cTracker->register_change_handler(NULL, handle_pos);
-	cTracker->register_change_handler(NULL, handle_vel);
-	cTracker->register_change_handler(NULL, handle_acc);
+	FString tAt = FString(TEXT("@"));
+
+	for (int32 i = 0; i < aTrackerNames.Num(); i++)
+	{
+		FString tCurrentTrackerName = aTrackerNames[i];
+
+		FString tCurrentAddress = tCurrentTrackerName + tAt + aServerAddress;
+		vrpn_Tracker_Remote* tCurrentTracker = new vrpn_Tracker_Remote(TCHAR_TO_ANSI(*tCurrentAddress));
+
+		VRPN_CB_INFO* tCurrentInfo = new VRPN_CB_INFO();
+		tCurrentInfo->tTrackerRemoteIndex = i;
+
+		tCurrentTracker->register_change_handler(tCurrentInfo, handle_pos);
+		tCurrentTracker->register_change_handler(tCurrentInfo, handle_vel);
+		tCurrentTracker->register_change_handler(tCurrentInfo, handle_acc);
+
+		cTrackerRemotes.Add(tCurrentTracker);
+		cTrackerRemoteCount++;
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("VRPN connection initizalized: %s, Trackers: %d"), *tCurrentAddress, cTrackerRemoteCount));
+	}	
+	
 	cPosArrLen = 3;
 	cRotArrLen = 4;
 	cBones = new UnrealMeVRPNBone[24];
 
-	for (int i = 0; i < 23; i++){
+	for (int i = 0; i < 23; i++)
+	{
 		//assigns pointers to the value arrays to each bone
 		UnrealMeVRPNBone tTemp = UnrealMeVRPNBone(i);
 		cBones[i] = tTemp;
 	}
+
+	cConnected = true;
 }
 
-void UUnrealMeVRPNConnector::callTrackerMainloop()
+void UUnrealMeVRPNConnector::destroyConnection()
 {
-	cTracker->mainloop();
+	
+	for (int32 i = 0; i < cTrackerRemotes.Num(); i++)
+	{
+		cTrackerRemotes[i]->unregister_change_handler(NULL, handle_pos);
+		cTrackerRemotes[i]->unregister_change_handler(NULL, handle_vel);
+		cTrackerRemotes[i]->unregister_change_handler(NULL, handle_acc);
+	}
+
+	cTrackerRemotes.Empty();
+	delete cBones;
+
+	cTrackerRemoteCount = 0;
+}
+
+bool UUnrealMeVRPNConnector::isConnected()
+{
+	return cConnected;
+}
+
+void UUnrealMeVRPNConnector::callMainloop()
+{
+	for (int32 i = 0; i < cTrackerRemotes.Num(); i++)
+	{
+		cTrackerRemotes[i]->mainloop();
+	}
+
 	vrpn_SleepMsecs(1);
 }
 

@@ -29,9 +29,12 @@ void UUnrealMeAnimInstance::NativeInitializeAnimation()
 		}
 	}
 
-	if (iVRPN)
+	if (iVRPN && UUnrealMeVRPNConnector::isConnected() == false)
 	{
-		UUnrealMeVRPNConnector::initializeTracker();
+		TArray<FString> tTrackerNames;
+		tTrackerNames.Add(FString(TEXT("Tracker0")));
+
+		UUnrealMeVRPNConnector::initializeConnection(tTrackerNames, FString(TEXT("localhost")));
 	}
 
 	UE_LOG(UnrealMe, Log, TEXT("Animation initialized."));
@@ -43,7 +46,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 
 	if (iVRPN)
 	{
-		UUnrealMeVRPNConnector::callTrackerMainloop();
+		UUnrealMeVRPNConnector::callMainloop();
 	}
 
 	/* Currently stable method. */

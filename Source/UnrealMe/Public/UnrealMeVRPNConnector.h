@@ -25,9 +25,11 @@ class UNREALME_API UUnrealMeVRPNConnector : public UObject
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static void initializeTracker();
+	static void initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
-	static void callTrackerMainloop();
+	static void destroyConnection();
+	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
+	static void callMainloop();
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	static FVector getBonePosition(int32 aBoneId);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
@@ -40,4 +42,6 @@ public:
 	static float getBoneVelocity(int32 aBoneId);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	static FRotator getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint);
+	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
+	static bool isConnected();
 };
