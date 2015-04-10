@@ -46,6 +46,9 @@ public:
 	APawn* iOwningPawn;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	bool iVrpn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
 	bool SkelControl_UsePureRotations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)

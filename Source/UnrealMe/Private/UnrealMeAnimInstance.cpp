@@ -6,7 +6,6 @@
 int32 iFrameCount = 0;
 TStaticArray<FRotations, 14> iBuffer;
 bool iBuffered = false;
-bool iVRPN = true;
 static std::map<EJointRotationType, FRotator> iRotations;
 
 UUnrealMeAnimInstance::UUnrealMeAnimInstance(const FObjectInitializer& PCIP)
@@ -30,13 +29,15 @@ void UUnrealMeAnimInstance::NativeInitializeAnimation()
 		}
 	}
 
-	if (iVRPN && iVrpnConnector->isConnected() == false)
+	if (iVrpn && iVrpnConnector->isConnected() == false)
 	{
 		TArray<FString> tTrackerNames;
-		tTrackerNames.Add(FString(TEXT("torso_unrealme")));
-		tTrackerNames.Add(FString(TEXT("lefthand")));
+		//tTrackerNames.Add(FString(TEXT("torso_unrealme")));
+		//tTrackerNames.Add(FString(TEXT("lefthand")));
+		tTrackerNames.Add(FString(TEXT("Tracker0")));
 
-		iVrpnConnector->initializeConnection(tTrackerNames, FString(TEXT("132.187.8.149")));
+		//iVrpnConnector->initializeConnection(tTrackerNames, FString(TEXT("132.187.8.149")));
+		iVrpnConnector->initializeConnection(tTrackerNames, FString(TEXT("localhost")));
 	}
 
 	UE_LOG(UnrealMe, Log, TEXT("Animation initialized."));
@@ -46,7 +47,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 {
 	Super::NativeUpdateAnimation(aDeltaTime);
 
-	if (iVRPN)
+	if (iVrpn)
 	{
 		iVrpnConnector->callMainloop();
 	}
@@ -59,7 +60,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 		//tRotations[EJointRotationType::JR_SPINE_BY_S] = UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
 
 		/* Update the core */
-		if (iVRPN)
+		if (iVrpn)
 		{
 			SkelControl_SpineBasePureRot = iVrpnConnector->getBoneRotation(0);
 			SkelControl_SpineMidPureRot = iVrpnConnector->getBoneRotation(0);
@@ -89,7 +90,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 
 		if (SkelControl_UsePureRotations)
 		{
-			if (iVRPN)
+			if (iVrpn)
 			{
 				updateRotationsVRPN();
 			}
@@ -100,7 +101,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 		}
 		else
 		{
-			if (iVRPN)
+			if (iVrpn)
 			{
 				updateRotationsByPositionsVRPN();
 			}

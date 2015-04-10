@@ -34,8 +34,8 @@ UUnrealMeVRPNConnector::UUnrealMeVRPNConnector(const FObjectInitializer& PCIP) :
 void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
 {
 	int tIndex = ((VRPN_CB_INFO*)aParam)->tTrackerRemoteIndex;
-	int tControl = 99;
-
+	
+	//int tControl = 99;
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Callback exploration - Control value: %d, Index from param: %d"), tControl, tIndex));
 
 	int tAccessIndex;
