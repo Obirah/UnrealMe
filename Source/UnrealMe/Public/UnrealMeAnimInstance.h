@@ -5,6 +5,7 @@
 #include "Animation/AnimInstance.h"
 #include "UnrealMeVRPN.h"
 #include "UnrealMeKinectV2Connector.h"
+#include "UnrealMeTrackingSystemHelper.h"
 #include "UnrealMeVRPNConnector.h"
 #include "UnrealMeAnimInstance.generated.h"
 

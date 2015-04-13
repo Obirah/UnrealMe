@@ -31,13 +31,7 @@ void UUnrealMeAnimInstance::NativeInitializeAnimation()
 
 	if (iVrpn && iVrpnConnector->isConnected() == false)
 	{
-		TArray<FString> tTrackerNames;
-		//tTrackerNames.Add(FString(TEXT("torso_unrealme")));
-		//tTrackerNames.Add(FString(TEXT("lefthand")));
-		tTrackerNames.Add(FString(TEXT("Tracker0")));
-
-		//iVrpnConnector->initializeConnection(tTrackerNames, FString(TEXT("132.187.8.149")));
-		iVrpnConnector->initializeConnection(tTrackerNames, FString(TEXT("localhost")));
+		iVrpnConnector->initializeConnection(UUnrealMeTrackingSystemHelper::getViconTrackerNames(), UUnrealMeTrackingSystemHelper::getViconAddress());
 	}
 
 	UE_LOG(UnrealMe, Log, TEXT("Animation initialized."));
@@ -197,6 +191,11 @@ void UUnrealMeAnimInstance::updateRotationsByPositions()
 void UUnrealMeAnimInstance::updateRotationsVRPN()
 {
 	SkelControl_LeftHandRot = iVrpnConnector->getBoneRotation(1);
+	SkelControl_RightHandRot = iVrpnConnector->getBoneRotation(2);
+
+	SkelControl_LeftLowerarmRot = iVrpnConnector->getBoneRotation(3);
+	SkelControl_RightLowerarmRot = iVrpnConnector->getBoneRotation(4);
+
 	/* Need to be set so that this method is corresponding to updateRotationsByPositions 
 	SkelControl_TorsoRotationByShoulders = UUnrealMeVRPNConnector::getBoneRotation(1);
 	SkelControl_TorsoRotationByHips = UUnrealMeVRPNConnector::getBoneRotation(3);
