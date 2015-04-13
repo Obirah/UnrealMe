@@ -5,8 +5,10 @@
 /**
  * 
  */
-class UNREALME_API UUnrealMeTrackingSystemHelper
+UCLASS()
+class UNREALME_API UUnrealMeTrackingSystemHelper : public UObject
 {
+	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable, Category = "TrackingSystemHelper")
 	static TArray<FString> getViconTrackerNames();
