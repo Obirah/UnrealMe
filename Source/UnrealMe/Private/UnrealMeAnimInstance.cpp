@@ -41,10 +41,10 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 {
 	Super::NativeUpdateAnimation(aDeltaTime);
 
-	if (iVrpn)
+	/*if (iVrpn)
 	{
 		iVrpnConnector->callMainloop();
-	}
+	}*/
 
 	/* Currently stable method. */
 	if (!iBuffered)
@@ -54,7 +54,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 		//tRotations[EJointRotationType::JR_SPINE_BY_S] = UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
 
 		/* Update the core */
-		if (iVrpn)
+		if (iVrpn && iVrpnConnector->isConnected())
 		{
 			SkelControl_SpineBasePureRot = iVrpnConnector->getBoneRotation(0);
 			SkelControl_SpineMidPureRot = iVrpnConnector->getBoneRotation(0);
@@ -84,7 +84,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 
 		if (SkelControl_UsePureRotations)
 		{
-			if (iVrpn)
+			if (iVrpn && iVrpnConnector->isConnected())
 			{
 				updateRotationsVRPN();
 			}
@@ -95,7 +95,7 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 		}
 		else
 		{
-			if (iVrpn)
+			if (iVrpn && iVrpnConnector->isConnected())
 			{
 				updateRotationsByPositionsVRPN();
 			}

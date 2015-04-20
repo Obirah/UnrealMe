@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "UnrealMeTrackingSystemHelper.generated.h"
 /**
  * 
  */

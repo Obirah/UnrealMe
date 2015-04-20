@@ -75,46 +75,75 @@ void VRPN_CALLBACK handle_acc(void *, const vrpn_TRACKERACCCB aTracker)
 	iBones[aTracker.sensor].setCurrAcc(*aTracker.acc);
 }
 
+void UUnrealMeVRPNConnector::disconnect()
+{
+	if (iConnected)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Disconnecting VRPN...")));
+
+		iConnected = false;
+		iTrackerRemoteCount = 0;
+
+		for (int32 i = 0; i < iTrackerRemotes.Num(); i++)
+		{
+			iTrackerRemotes[i]->unregister_change_handler(NULL, handle_pos);
+			iTrackerRemotes[i]->unregister_change_handler(NULL, handle_vel);
+			iTrackerRemotes[i]->unregister_change_handler(NULL, handle_acc);
+		}
+
+		iTrackerRemotes.Empty();
+
+		UE_LOG(UnrealMe, Log, TEXT("VRPN disconnected."));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Attempted to disconecct VRPN, but it already was disconnected.")));
+		UE_LOG(UnrealMe, Warning, TEXT("Attempted to disconecct VRPN, but it already was disconnected."));
+	}
+}
+
 void UUnrealMeVRPNConnector::BeginDestroy()
 {
 	Super::BeginDestroy();
-
-	for (int32 i = 0; i < iTrackerRemotes.Num(); i++)
-	{
-		iTrackerRemotes[i]->unregister_change_handler(NULL, handle_pos);
-		iTrackerRemotes[i]->unregister_change_handler(NULL, handle_vel);
-		iTrackerRemotes[i]->unregister_change_handler(NULL, handle_acc);
-	}
-
-	iTrackerRemotes.Empty();
+	disconnect();
 	delete iBones;
 }
 
 void UUnrealMeVRPNConnector::initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress)
 {
-	FString tAt = FString(TEXT("@"));
-
-	for (int32 i = 0; i < aTrackerNames.Num(); i++)
+	if (iConnected == false)
 	{
-		FString tCurrentTrackerName = aTrackerNames[i];
+		FString tAt = FString(TEXT("@"));
 
-		FString tCurrentAddress = tCurrentTrackerName + tAt + aServerAddress;
-		vrpn_Tracker_Remote* tCurrentTracker = new vrpn_Tracker_Remote(TCHAR_TO_ANSI(*tCurrentAddress));
+		for (int32 i = 0; i < aTrackerNames.Num(); i++)
+		{
+			FString tCurrentTrackerName = aTrackerNames[i];
 
-		VRPN_CB_INFO* tCurrentInfo = new VRPN_CB_INFO();
-		tCurrentInfo->tTrackerRemoteIndex = i;
+			FString tCurrentAddress = tCurrentTrackerName + tAt + aServerAddress;
+			vrpn_Tracker_Remote* tCurrentTracker = new vrpn_Tracker_Remote(TCHAR_TO_ANSI(*tCurrentAddress));
 
-		tCurrentTracker->register_change_handler(tCurrentInfo, handle_pos);
-		tCurrentTracker->register_change_handler(tCurrentInfo, handle_vel);
-		tCurrentTracker->register_change_handler(tCurrentInfo, handle_acc);
+			VRPN_CB_INFO* tCurrentInfo = new VRPN_CB_INFO();
+			tCurrentInfo->tTrackerRemoteIndex = i;
 
-		iTrackerRemotes.Add(tCurrentTracker);
-		iTrackerRemoteCount++;
+			tCurrentTracker->register_change_handler(tCurrentInfo, handle_pos);
+			tCurrentTracker->register_change_handler(tCurrentInfo, handle_vel);
+			tCurrentTracker->register_change_handler(tCurrentInfo, handle_acc);
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("VRPN connection initizalized: %s, Trackers: %d"), *tCurrentAddress, iTrackerRemoteCount));
-	}	
+			iTrackerRemotes.Add(tCurrentTracker);
+			iTrackerRemoteCount++;
 
-	iConnected = true;
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("VRPN connection initizalized: %s, Trackers: %d"), *tCurrentAddress, iTrackerRemoteCount));
+		}
+
+		iConnected = true;
+
+		UE_LOG(UnrealMe, Log, TEXT("VRPN connected."));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("VRPN already connected.")));
+		UE_LOG(UnrealMe, Warning, TEXT("VRPN already connected."));
+	}
 }
 
 bool UUnrealMeVRPNConnector::isConnected()

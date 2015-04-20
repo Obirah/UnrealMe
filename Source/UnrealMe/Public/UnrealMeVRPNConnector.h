@@ -39,6 +39,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	void initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress);
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
+	void disconnect();
+	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	void callMainloop();
 
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
