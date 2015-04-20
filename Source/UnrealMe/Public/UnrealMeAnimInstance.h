@@ -46,74 +46,74 @@ public:
 	UUnrealMeAnimInstance(const FObjectInitializer& PCIP);
 	APawn* iOwningPawn;	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	bool iVrpn;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	bool SkelControl_UsePureRotations;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_SpineBasePureRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_SpineMidPureRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_NeckPureRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FVector SkelControl_SpineBasePos;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FVector SkelControl_SpineMidPos;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FVector SkelControl_NeckPos;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_TorsoRotationByShoulders;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_TorsoRotationByHips;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_SpineBaseRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_SpineMidRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_NeckRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftUpperarmRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftLowerarmRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftHandRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftThumbRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftHandTipRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightUpperarmRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightLowerarmRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightHandRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightThumbRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightHandTipRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftThighRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftCalfRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftFootRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightThighRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightCalfRot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = KinectV2Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightFootRot;
 
 	/* Update the rotation variables with the pure rotations of the joints stemming from a quaternion rotation */
@@ -127,7 +127,7 @@ public:
 	/* JUST A TEST: Update with calculated rotations and smoothing */
 	virtual void updateRotationsByPositionsWithSmoothing();
 
-	UFUNCTION(BlueprintCallable, Category = KinectV2Animation)
+	UFUNCTION(BlueprintCallable, Category = UnrealMeAnimation)
 	static FRotator getJointRotation(EJointRotationType aJoint);
 
 	/* Override the AnimInstance's function that is similar to the PostInitializeComponents event. */

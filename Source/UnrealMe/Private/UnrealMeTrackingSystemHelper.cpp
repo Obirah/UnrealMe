@@ -12,6 +12,7 @@ TArray<FString> UUnrealMeTrackingSystemHelper::getViconTrackerNames()
 	tTrackerNames.Add(FString(TEXT("righthand")));
 	tTrackerNames.Add(FString(TEXT("leftelbow")));
 	tTrackerNames.Add(FString(TEXT("rightelbow")));
+	tTrackerNames.Add(FString(TEXT("portable_unrealme")));
 
 	return tTrackerNames;
 }

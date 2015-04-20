@@ -33,13 +33,18 @@ private:
 	int32 iRotArrLen;
 	int32 iConnectionPort;
 public:
+	/** Default constrcutor */
 	UUnrealMeVRPNConnector(const FObjectInitializer& PCIP);
+	/** Overriden begin destroy to implement functionality when the Unreal garbage collector collects. */
 	virtual void BeginDestroy() override;
 
+	/** Connect to VRPN using the specified tracker names and server address. */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	void initializeConnection(TArray<FString> aTrackerNames, FString aServerAddress);
+	/** Disconnect from VRPN. */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	void disconnect();
+	/** Call the mainloops of all currently used tracker remotes. */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	void callMainloop();
 
