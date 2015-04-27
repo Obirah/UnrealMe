@@ -12,7 +12,11 @@ UUnrealMeAnimInstance::UUnrealMeAnimInstance(const FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	UE_LOG(UnrealMe, Log, TEXT("AnimInstance initialized."));
-	iVrpnConnector = UUnrealMeVRPNConnector::getInstance();
+
+	if (iVrpn == true)
+	{
+		iVrpnConnector = UUnrealMeVRPNConnector::getInstance();
+	}
 }
 
 void UUnrealMeAnimInstance::NativeInitializeAnimation()
