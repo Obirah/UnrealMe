@@ -25,4 +25,3 @@ void AUnrealMePortableActor::Tick(float aDeltaTime)
 	Super::Tick(aDeltaTime);
 	
 }
-
