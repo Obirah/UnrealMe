@@ -124,8 +124,6 @@ public:
 	virtual void updateRotationsVRPN();
 	/* Update the rotation variables with rotations calculated from relative joint positions */
 	virtual void updateRotationsByPositionsVRPN();
-	/* JUST A TEST: Update with calculated rotations and smoothing */
-	virtual void updateRotationsByPositionsWithSmoothing();
 
 	UFUNCTION(BlueprintCallable, Category = UnrealMeAnimation)
 	static FRotator getJointRotation(EJointRotationType aJoint);

@@ -11,8 +11,6 @@ static std::map<int, FString> iJointToSkeletalBone;
 
 static std::map<int, FRotator> iSkeletonRotationData;
 
-static TStaticArray<FRotations, 25> iBuffer;
-
 /* TORSO POSITIONS AT TIME T-1 */
 static CameraSpacePoint iPreviousTorsoPos;
 static std::map<int, CameraSpacePoint> iUsersPreviousTorsoPos;
@@ -28,9 +26,6 @@ static IBodyFrameReader* iBodyFrameReader;
 /* MISCELLANEOUS */
 static int iTrackedUsers;
 static bool iMultiUser;
-
-/* TEST */
-static int iRotationBufferSize;
 
 static int iRotationXOffset = 0;
 static int iRotationYOffset = 0;
@@ -57,18 +52,11 @@ void UUnrealMeKinectV2Connector::initializeKinect(bool aMultiUser)
 	iCurrentTorsoDelta = FVector(0, 0, 0);
 	iTrackedUsers = 0;
 	iMultiUser = false;
-	iRotationBufferSize = 0;
 
 	iCurrentTorsoOffset = CameraSpacePoint();
 	iCurrentTorsoOffset.X = 0;
 	iCurrentTorsoOffset.Y = 0;
 	iCurrentTorsoOffset.Z = 0;
-
-	/*iBuffer = TStaticArray<FRotations, 24>();*/
-	for (int i = 0; i < 25; i++)
-	{
-		iBuffer[i] = FRotations();
-	}
 
 	HRESULT tCurrentOperation;
 	tCurrentOperation = GetDefaultKinectSensor(&iKinectSensor);
@@ -356,34 +344,12 @@ void UUnrealMeKinectV2Connector::processBody(INT64 aTime, int aBodyCount, IBody*
 
 							FRotator tUnrealRotator = UUnrealMeCoordinateHelper::convertQuatRotationToRotator(tJointOrientation);//UUnrealMeCoordinateHelper::convertRotationToUnrealSpace(tKinectRotator);
 
-							tSkeletonRotationData[j] = tUnrealRotator;							
-							
-							//iBuffer[j].addRotatorAt(iRotationBufferSize, tKinectRotator);
+							tSkeletonRotationData[j] = tUnrealRotator;									
 						}
 
 						/* Update the global collections. */
 						iSkeletonData = tSkeletonData;
 						iSkeletonRotationData = tSkeletonRotationData;
-						//iSkeletonRotationBuffer[iRotationBufferSize] = tSkeletonRotationData;
-						iRotationBufferSize++;
-
-						/*if (iRotationBufferSize == 9)
-						{
-							for (int i = 0; i < 25; i++)
-							{
-								FRotator tKinectRotator = iBuffer[i].getMeanRotator();
-
-								FRotator tUnrealRotator = FRotator();
-								tUnrealRotator.Roll = tKinectRotator.Yaw;
-								tUnrealRotator.Pitch = tKinectRotator.Pitch;
-								tUnrealRotator.Yaw = tKinectRotator.Roll;
-
-								tSkeletonRotationData[i] = tUnrealRotator;
-							}
-
-							iSkeletonRotationData = tSkeletonRotationData;
-							iRotationBufferSize = 0;
-						}*/
 
 						/* Update the value of the current key value pair in the multi user map if necessary. */
 						if (iMultiUser)

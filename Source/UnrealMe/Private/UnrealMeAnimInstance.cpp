@@ -4,8 +4,6 @@
 #include "UnrealMeAnimInstance.h"
 
 int32 iFrameCount = 0;
-TStaticArray<FRotations, 14> iBuffer;
-bool iBuffered = false;
 static std::map<EJointRotationType, FRotator> iRotations;
 
 UUnrealMeAnimInstance::UUnrealMeAnimInstance(const FObjectInitializer& PCIP)
@@ -25,14 +23,6 @@ void UUnrealMeAnimInstance::NativeInitializeAnimation()
 
 	iOwningPawn = TryGetPawnOwner();
 
-	if (iBuffered)
-	{
-		for (int i = 0; i < 11; i++)
-		{
-			iBuffer[i] = FRotations();
-		}
-	}
-
 	if (iVrpn && iVrpnConnector->isConnected() == false)
 	{
 		iVrpnConnector->initializeConnection(UUnrealMeTrackingSystemHelper::getViconTrackerNames(), UUnrealMeTrackingSystemHelper::getViconAddress());
@@ -49,74 +39,62 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 	{
 		iVrpnConnector->callMainloop();
 	}*/
+	
+	/* Updated data structure to be accessed via Enum to come. */
+	//std::map<EJointRotationType, FRotator> tRotations;
+	//tRotations[EJointRotationType::JR_SPINE_BY_S] = UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
 
-	/* Currently stable method. */
-	if (!iBuffered)
-	{		
-		/* Updated data structure to be accessed via Enum to come. */
-		//std::map<EJointRotationType, FRotator> tRotations;
-		//tRotations[EJointRotationType::JR_SPINE_BY_S] = UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
+	/* Update the core */
+	if (iVrpn && iVrpnConnector->isConnected())
+	{
+		SkelControl_SpineBasePureRot = iVrpnConnector->getBoneRotation(0);
+		SkelControl_SpineMidPureRot = iVrpnConnector->getBoneRotation(0);
+		SkelControl_NeckPureRot = iVrpnConnector->getBoneRotation(0);
 
-		/* Update the core */
-		if (iVrpn && iVrpnConnector->isConnected())
-		{
-			SkelControl_SpineBasePureRot = iVrpnConnector->getBoneRotation(0);
-			SkelControl_SpineMidPureRot = iVrpnConnector->getBoneRotation(0);
-			SkelControl_NeckPureRot = iVrpnConnector->getBoneRotation(0);
-
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("TorsoRotation: %f, %f, %f"), SkelControl_SpineMidPureRot.Pitch, SkelControl_SpineMidPureRot.Roll, SkelControl_SpineMidPureRot.Yaw));
-			/*
-			SkelControl_SpineBasePureRot = UUnrealMeVRPNConnector::getBoneRotation(3);
-			SkelControl_SpineMidPureRot = UUnrealMeVRPNConnector::getBoneRotation(2);
-			SkelControl_NeckPureRot = UUnrealMeVRPNConnector::getBoneRotation(1);
-
-			SkelControl_SpineBasePos = UUnrealMeVRPNConnector::getBonePosition(3);
-			SkelControl_SpineMidPos = UUnrealMeVRPNConnector::getBonePosition(2);
-			SkelControl_NeckPos = UUnrealMeVRPNConnector::getBonePosition(1);
-			*/
-		}
-		else
-		{
-			SkelControl_SpineBasePureRot = UUnrealMeKinectV2Connector::getJointRotation(0);
-			SkelControl_SpineMidPureRot = UUnrealMeKinectV2Connector::getJointRotation(1);
-			SkelControl_NeckPureRot = UUnrealMeKinectV2Connector::getJointRotation(2);
-
-			SkelControl_SpineBasePos = UUnrealMeKinectV2Connector::getJointPosition(0);
-			SkelControl_SpineMidPos = UUnrealMeKinectV2Connector::getJointPosition(1);
-			SkelControl_NeckPos = UUnrealMeKinectV2Connector::getJointPosition(2);
-		}		
-
-		if (SkelControl_UsePureRotations)
-		{
-			if (iVrpn && iVrpnConnector->isConnected())
-			{
-				updateRotationsVRPN();
-			}
-			else
-			{
-				updateRotations();
-			}			
-		}
-		else
-		{
-			if (iVrpn && iVrpnConnector->isConnected())
-			{
-				updateRotationsByPositionsVRPN();
-			}
-			else
-			{
-				updateRotationsByPositions();
-			}			
-		}
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("TorsoRotation: %f, %f, %f"), SkelControl_SpineMidPureRot.Pitch, SkelControl_SpineMidPureRot.Roll, SkelControl_SpineMidPureRot.Yaw));
+		/*
+		SkelControl_SpineBasePureRot = UUnrealMeVRPNConnector::getBoneRotation(3);
+		SkelControl_SpineMidPureRot = UUnrealMeVRPNConnector::getBoneRotation(2);
+		SkelControl_NeckPureRot = UUnrealMeVRPNConnector::getBoneRotation(1);
 		
-
-		//iRotations = tRotations;
+		SkelControl_SpineBasePos = UUnrealMeVRPNConnector::getBonePosition(3);
+		SkelControl_SpineMidPos = UUnrealMeVRPNConnector::getBonePosition(2);
+		SkelControl_NeckPos = UUnrealMeVRPNConnector::getBonePosition(1);
+		*/
 	}
-	/* Exploration of smoothing the rotations. */
 	else
 	{
-		updateRotationsByPositionsWithSmoothing();
+		SkelControl_SpineBasePureRot = UUnrealMeKinectV2Connector::getJointRotation(0);
+		SkelControl_SpineMidPureRot = UUnrealMeKinectV2Connector::getJointRotation(1);
+		SkelControl_NeckPureRot = UUnrealMeKinectV2Connector::getJointRotation(2);
+		
+		SkelControl_SpineBasePos = UUnrealMeKinectV2Connector::getJointPosition(0);
+		SkelControl_SpineMidPos = UUnrealMeKinectV2Connector::getJointPosition(1);
+		SkelControl_NeckPos = UUnrealMeKinectV2Connector::getJointPosition(2);
 	}		
+
+	if (SkelControl_UsePureRotations)
+	{
+		if (iVrpn && iVrpnConnector->isConnected())
+		{
+			updateRotationsVRPN();
+		}
+		else
+		{
+			updateRotations();
+		}			
+	}
+	else
+	{
+		if (iVrpn && iVrpnConnector->isConnected())
+		{
+			updateRotationsByPositionsVRPN();
+		}
+		else
+		{
+			updateRotationsByPositions();
+		}			
+	}
 }
 
 void UUnrealMeAnimInstance::updateRotations()
@@ -270,68 +248,6 @@ void UUnrealMeAnimInstance::updateRotationsByPositionsVRPN()
 	SkelControl_RightThighRot = iVrpnConnector->getJointRotationByPosition(21, 20);
 	SkelControl_RightCalfRot = iVrpnConnector->getJointRotationByPosition(22, 21);
 	SkelControl_RightFootRot = iVrpnConnector->getJointRotationByPosition(23, 22);
-}
-
-void UUnrealMeAnimInstance::updateRotationsByPositionsWithSmoothing()
-{
-	iBuffer[0].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(5, 4));
-	iBuffer[1].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(6, 5));
-	iBuffer[2].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(7, 6));
-
-	iBuffer[3].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(8, 9));
-	iBuffer[4].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(9, 10));
-	iBuffer[5].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(10, 11));
-
-	iBuffer[6].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(12, 13));
-	iBuffer[7].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(13, 14));
-	iBuffer[8].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(14, 15));
-
-	iBuffer[9].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(17, 16));
-	iBuffer[10].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(18, 17));
-	iBuffer[11].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(19, 18));
-
-	iBuffer[12].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8));
-	iBuffer[13].addRotatorAt(iFrameCount, UUnrealMeKinectV2Connector::getJointRotationByPosition(12, 16));
-
-	if (iFrameCount < 2)
-	{
-		iFrameCount++;
-	}
-	else
-	{
-		SkelControl_SpineBasePureRot = UUnrealMeKinectV2Connector::getJointRotation(0);
-		SkelControl_SpineMidPureRot = UUnrealMeKinectV2Connector::getJointRotation(1);
-		SkelControl_NeckPureRot = UUnrealMeKinectV2Connector::getJointRotation(2);
-
-		SkelControl_SpineBasePos = UUnrealMeKinectV2Connector::getJointPosition(0);
-		SkelControl_SpineMidPos = UUnrealMeKinectV2Connector::getJointPosition(1);
-		SkelControl_NeckPos = UUnrealMeKinectV2Connector::getJointPosition(2);
-
-		SkelControl_TorsoRotationByShoulders = iBuffer[12].getMeanRotator();
-		SkelControl_TorsoRotationByHips = iBuffer[13].getMeanRotator();
-
-		SkelControl_SpineBaseRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(0, 2);
-		SkelControl_SpineMidRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(0, 2);
-		SkelControl_NeckRot = UUnrealMeKinectV2Connector::getJointRotationByPosition(0, 2);
-
-		SkelControl_LeftUpperarmRot = iBuffer[0].getMeanRotator();
-		SkelControl_LeftLowerarmRot = iBuffer[1].getMeanRotator();
-		SkelControl_LeftHandRot = iBuffer[2].getMeanRotator();
-
-		SkelControl_RightUpperarmRot = iBuffer[3].getMeanRotator();
-		SkelControl_RightLowerarmRot = iBuffer[4].getMeanRotator();
-		SkelControl_RightHandRot = iBuffer[5].getMeanRotator();
-
-		SkelControl_LeftThighRot = iBuffer[6].getMeanRotator();
-		SkelControl_LeftCalfRot = iBuffer[7].getMeanRotator();
-		SkelControl_LeftFootRot = iBuffer[8].getMeanRotator();
-
-		SkelControl_RightThighRot = iBuffer[9].getMeanRotator();
-		SkelControl_RightCalfRot = iBuffer[10].getMeanRotator();
-		SkelControl_RightFootRot = iBuffer[11].getMeanRotator();
-
-		iFrameCount = 0;
-	}
 }
 
 FRotator UUnrealMeAnimInstance::getJointRotation(EJointRotationType aJoint)

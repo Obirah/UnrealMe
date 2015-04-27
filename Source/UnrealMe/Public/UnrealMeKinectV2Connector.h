@@ -13,48 +13,6 @@
 #include "UnrealMeCoordinateHelper.h"
 #include "UnrealMeKinectV2Connector.generated.h"
 
-/** Experimental struct for future data structure optimizations. */
-USTRUCT()
-struct FRotations
-{
-	GENERATED_USTRUCT_BODY()
-
-	TStaticArray<FRotator, 3> iRotationBuffer;
-
-	FRotator getMeanRotator()
-	{
-		float tSumPitch = 0;
-		float tSumRoll = 0;
-		float tSumYaw = 0;
-
-		for (int i = 0; i < 3; i++)
-		{
-			FRotator tCurrentRotator = iRotationBuffer[i];
-
-			tSumPitch += tCurrentRotator.Pitch;
-			tSumRoll += tCurrentRotator.Roll;
-			tSumYaw += tCurrentRotator.Yaw;
-		}
-
-		FRotator tSmoothedRotator = FRotator();
-		tSmoothedRotator.Roll = tSumRoll / 3;
-		tSmoothedRotator.Pitch = tSumPitch / 3;
-		tSmoothedRotator.Yaw = tSumYaw / 3;
-
-		return tSmoothedRotator;
-	}
-
-	void addRotatorAt(int32 aIndex, FRotator aRotator)
-	{
-		iRotationBuffer[aIndex] = aRotator;
-	}
-
-	FRotations()
-	{
-		
-	}
-};
-
 /** Safe release for interfaces */
 template<class Interface>
 inline void SafeRelease(Interface *& aInterfaceToRelease)
