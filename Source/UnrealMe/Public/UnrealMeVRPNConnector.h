@@ -16,8 +16,22 @@
 #include "UnrealMeVRPNConnector.generated.h"
 
 /**
- * 
- */
+* VRPN client class
+* Bone IDs:
+	0 	Head 				12 	Right Elbow
+	1 	Neck 				13 	Right Wrist
+	2 	Torso 				14 	Right Hand
+	3 	Waist 				15 	Right Fingertip
+	4 	Left Collar 		16 	Left Hip
+	5 	Left Shoulder 		17 	Left Knee
+	6 	Left Elbow 			18 	Left Ankle
+	7 	Left Wrist 			19 	Left Foot
+	8 	Left Hand 			20 	Right Hip
+	9 	Left Fingertip 		21 	Right Knee
+	10 	Right Collar 		22 	Right Ankle
+	11 	Right Shoulder 		23 	Right Foot
+*
+*/
 UCLASS()
 class UNREALME_API UUnrealMeVRPNConnector : public UObject
 {
@@ -48,21 +62,28 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	void callMainloop();
 
+	/** Returns the position of the specified bone */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	FVector getBonePosition(int32 aBoneId);
+	/** Returns the rotation of the specified bone */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	FRotator getBoneRotation(int32 aBoneId);
+	/** Returns the quaternion rotation of the specified bone */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	FQuat getBoneQuaternion(int32 aBoneId);
+	/** Returns the acceleration of the specified bone */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	float getBoneAcceleration(int32 aBoneId);
+	/** Returns the velocity of the specified bone */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	float getBoneVelocity(int32 aBoneId);
+	/** Returns the rotation of a bone calculated by the relative locations of the two specified bones */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	FRotator getJointRotationByPosition(int32 aStartJoint, int32 aEndJoint);
+	/** Returns the flag indicating whether a connection is established */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	bool isConnected();
-
+	/** Returns the singleton instance */
 	UFUNCTION(BlueprintCallable, Category = "VRPNConnector")
 	static UUnrealMeVRPNConnector* getInstance();
 };

@@ -35,12 +35,13 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 {
 	Super::NativeUpdateAnimation(aDeltaTime);
 
+	// Comment in if you want to call the tracker mainloop here, can also be called in a (blueprint) player controller.
 	/*if (iVrpn)
 	{
 		iVrpnConnector->callMainloop();
 	}*/
 	
-	/* Updated data structure to be accessed via Enum to come. */
+	/* Just a showcase, ToDo: Create updated data structure to be accessed via Enum. */
 	//std::map<EJointRotationType, FRotator> tRotations;
 	//tRotations[EJointRotationType::JR_SPINE_BY_S] = UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
 
@@ -50,17 +51,6 @@ void UUnrealMeAnimInstance::NativeUpdateAnimation(float aDeltaTime)
 		SkelControl_SpineBasePureRot = iVrpnConnector->getBoneRotation(0);
 		SkelControl_SpineMidPureRot = iVrpnConnector->getBoneRotation(0);
 		SkelControl_NeckPureRot = iVrpnConnector->getBoneRotation(0);
-
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("TorsoRotation: %f, %f, %f"), SkelControl_SpineMidPureRot.Pitch, SkelControl_SpineMidPureRot.Roll, SkelControl_SpineMidPureRot.Yaw));
-		/*
-		SkelControl_SpineBasePureRot = UUnrealMeVRPNConnector::getBoneRotation(3);
-		SkelControl_SpineMidPureRot = UUnrealMeVRPNConnector::getBoneRotation(2);
-		SkelControl_NeckPureRot = UUnrealMeVRPNConnector::getBoneRotation(1);
-		
-		SkelControl_SpineBasePos = UUnrealMeVRPNConnector::getBonePosition(3);
-		SkelControl_SpineMidPos = UUnrealMeVRPNConnector::getBonePosition(2);
-		SkelControl_NeckPos = UUnrealMeVRPNConnector::getBonePosition(1);
-		*/
 	}
 	else
 	{
@@ -178,6 +168,8 @@ void UUnrealMeAnimInstance::updateRotationsVRPN()
 	SkelControl_LeftLowerarmRot = iVrpnConnector->getBoneRotation(3);
 	SkelControl_RightLowerarmRot = iVrpnConnector->getBoneRotation(4);
 
+	/* Tested VRPN with the above rotations. Comment following ones in if needed/wanted. */
+
 	/* Need to be set so that this method is corresponding to updateRotationsByPositions 
 	SkelControl_TorsoRotationByShoulders = UUnrealMeVRPNConnector::getBoneRotation(1);
 	SkelControl_TorsoRotationByHips = UUnrealMeVRPNConnector::getBoneRotation(3);
@@ -211,13 +203,12 @@ void UUnrealMeAnimInstance::updateRotationsVRPN()
 	SkelControl_RightThighRot = UUnrealMeVRPNConnector::getBoneRotation(20);
 	SkelControl_RightCalfRot = UUnrealMeVRPNConnector::getBoneRotation(21);
 	SkelControl_RightFootRot = UUnrealMeVRPNConnector::getBoneRotation(22); */
-	
 }
 
 void UUnrealMeAnimInstance::updateRotationsByPositionsVRPN()
 {
-	SkelControl_TorsoRotationByShoulders = iVrpnConnector->getJointRotationByPosition(5, 11);// UUnrealMeKinectV2Connector::getJointRotationByPosition(4, 8);
-	SkelControl_TorsoRotationByHips = iVrpnConnector->getJointRotationByPosition(16, 20); //UUnrealMeKinectV2Connector::getJointRotationByPosition(12, 16);
+	SkelControl_TorsoRotationByShoulders = iVrpnConnector->getJointRotationByPosition(5, 11);
+	SkelControl_TorsoRotationByHips = iVrpnConnector->getJointRotationByPosition(16, 20);
 
 	SkelControl_SpineBaseRot = iVrpnConnector->getJointRotationByPosition(2, 1);
 	SkelControl_SpineMidRot = iVrpnConnector->getJointRotationByPosition(2, 1);

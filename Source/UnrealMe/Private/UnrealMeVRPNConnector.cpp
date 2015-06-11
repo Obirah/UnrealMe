@@ -3,6 +3,7 @@
 #include "UnrealMe.h"
 #include "UnrealMeVRPNConnector.h"
 
+/* Struct to differentiate between the different bones in the callback function */
 typedef struct _VRPN_CB_INFO
 {
 	int tTrackerRemoteIndex;
@@ -23,6 +24,7 @@ void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
 {
 	if (aParam != NULL)
 	{
+		/* The struct in the first parameter tells us what tracker remote index (= bone id) to use. */
 		int tIndex = ((VRPN_CB_INFO*)aParam)->tTrackerRemoteIndex;
 
 		int tAccessIndex;
@@ -36,6 +38,7 @@ void VRPN_CALLBACK handle_pos(void* aParam, const vrpn_TRACKERCB aTracker)
 			tAccessIndex = aTracker.sensor;
 		}
 
+		/* Save the data after not null assertion */
 		if (iBones != NULL)
 		{
 			const float tPosX = aTracker.pos[0];
@@ -122,6 +125,7 @@ void UUnrealMeVRPNConnector::initializeConnection(TArray<FString> aTrackerNames,
 
 		FString tAt = FString(TEXT("@"));
 
+		/* Create tracker remotes for all passed tracker names and register them */
 		for (int32 i = 0; i < aTrackerNames.Num(); i++)
 		{
 			FString tCurrentTrackerName = aTrackerNames[i];

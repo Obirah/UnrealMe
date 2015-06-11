@@ -45,9 +45,9 @@ FRotator UUnrealMeCoordinateHelper::convertRotationToUnrealSpace(FRotator aRotat
 {
 	FRotator tBack = FRotator();
 
-	tBack.Roll = aRotator.Pitch; //aRotator.Yaw + 90;
-	tBack.Pitch = aRotator.Yaw * -1; //aRotator.Pitch * -1;
-	tBack.Yaw = aRotator.Roll; //aRotator.Roll * -1;
+	tBack.Roll = aRotator.Pitch;
+	tBack.Pitch = aRotator.Yaw * -1;
+	tBack.Yaw = aRotator.Roll;
 
 	return tBack;
 }
@@ -108,6 +108,7 @@ FRotator UUnrealMeCoordinateHelper::convertQuatRotationToRotator(FQuat aQuaterni
 	float sqw = aQuaternion.W * aQuaternion.W;
 
 	FRotator tBack;
+
 	if (aHomogenous == 1){
 		tBack.Roll = atan2f(2.f*(aQuaternion.X*aQuaternion.Y + aQuaternion.Z * aQuaternion.W), sqx - sqy - sqz + sqw);
 		tBack.Pitch = asinf(-2.f*(aQuaternion.X*aQuaternion.Z - aQuaternion.Y * aQuaternion.W));
@@ -122,51 +123,52 @@ FRotator UUnrealMeCoordinateHelper::convertQuatRotationToRotator(FQuat aQuaterni
 	return tBack;
 }
 
-FVector UUnrealMeCoordinateHelper::QuaternionToEuler(Vector4 q)
+FVector UUnrealMeCoordinateHelper::QuaternionToEuler(Vector4 aQuaternion)
 {
-	FVector v = FVector(0, 0, 0);
+	FVector tVector = FVector(0, 0, 0);
 
-	//If the Z, pitch, attitude is straight up or straight down, Y, roll, bank is zero
-	//  X, Yaw, heading is + or - the ... umm... the angle computed from Atan2 of X,W
+	// If the Z, pitch, attitude is straight up or straight down, Y, roll, bank is zero
+	// X, Yaw, heading is + or - the ... umm... the angle computed from Atan2 of X,W
 	// Basically, from what I understand, this choses Heading, Yaw or X
-	//  when faced with gimbal lock and zeros Bank, Roll or Y
-	if (q.x * q.y + q.z * q.w == 0.5)
+	// when faced with gimbal lock and zeros Bank, Roll or Y
+	if (aQuaternion.x * aQuaternion.y + aQuaternion.z * aQuaternion.w == 0.5)
 	{
 		//X Angle represents Yaw, Heading
-		v.X = (2 * FMath::Atan2(q.x, q.w));
+		tVector.X = (2 * FMath::Atan2(aQuaternion.x, aQuaternion.w));
 		//Y Angle represents Roll, Bank
-		v.Y = 0;
+		tVector.Y = 0;
 	}
-	else if (q.x * q.y + q.z * q.w == -0.5)
+	else if (aQuaternion.x * aQuaternion.y + aQuaternion.z * aQuaternion.w == -0.5)
 	{
 		//X Angle represents Yaw, Heading
-		v.X = (-2 * FMath::Atan2(q.x, q.w));
+		tVector.X = (-2 * FMath::Atan2(aQuaternion.x, aQuaternion.w));
 		//Y Angle represents Roll, Bank
-		v.Y = 0;
+		tVector.Y = 0;
 	}
 	else
 	{
 		//X Angle represents Yaw, heading 
-		v.X = FMath::Atan2(2 * q.y * q.w - 2 * q.x * q.z,
-			1 - 2 * FMath::Pow(q.y, 2) - 2 * FMath::Pow(q.z, 2));
+		tVector.X = FMath::Atan2(2 * aQuaternion.y * aQuaternion.w - 2 * aQuaternion.x * aQuaternion.z,
+			1 - 2 * FMath::Pow(aQuaternion.y, 2) - 2 * FMath::Pow(aQuaternion.z, 2));
 
 		//Y Angle represents Roll, bank
-		v.Y = FMath::Atan2(2 * q.x * q.w - 2 * q.y * q.z,
-			1 - 2 * FMath::Pow(q.x, 2) - 2 * FMath::Pow(q.z, 2));
+		tVector.Y = FMath::Atan2(2 * aQuaternion.x * aQuaternion.w - 2 * aQuaternion.y * aQuaternion.z,
+			1 - 2 * FMath::Pow(aQuaternion.x, 2) - 2 * FMath::Pow(aQuaternion.z, 2));
 	}
 
 	//Z Angle represents Pitch, attitude
-	v.Z = FMath::Asin(2 * q.x * q.y + 2 * q.z * q.w);
+	tVector.Z = FMath::Asin(2 * aQuaternion.x * aQuaternion.y + 2 * aQuaternion.z * aQuaternion.w);
 
 
 	//Convert the Euler angles from Radians to Degrees
-	v.X = RadianToDegree(v.X);
-	v.Y = RadianToDegree(v.Y);
-	v.Z = RadianToDegree(v.Z);
-	return v;
+	tVector.X = RadianToDegree(tVector.X);
+	tVector.Y = RadianToDegree(tVector.Y);
+	tVector.Z = RadianToDegree(tVector.Z);
+	return tVector;
 }
 
-double UUnrealMeCoordinateHelper::RadianToDegree(double angle)
-{//Return degrees (0->360) from radians
-	return angle * (180.0 / PI) + 180;
+double UUnrealMeCoordinateHelper::RadianToDegree(double aAngle)
+{
+	//Return degrees (0->360) from radians
+	return aAngle * (180.0 / PI) + 180;
 }

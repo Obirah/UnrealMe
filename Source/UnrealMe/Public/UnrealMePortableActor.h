@@ -6,6 +6,9 @@
 #include "UnrealMeVRPNConnector.h"
 #include "UnrealMePortableActor.generated.h"
 
+/**
+ * Class for future use to implement a portable object.
+ */
 UCLASS()
 class UNREALME_API AUnrealMePortableActor : public AActor
 {
@@ -14,15 +17,12 @@ class UNREALME_API AUnrealMePortableActor : public AActor
 private:
 	UUnrealMeVRPNConnector* iVrpnConnector;
 public:	
-	// Sets default values for this actor's properties
+	/** Sets default values for this actor's properties */
 	AUnrealMePortableActor();
 
-	// Called when the game starts or when spawned
+	/** Called when the game starts or when spawned */
 	virtual void BeginPlay() override;
 	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
-
-	
-	
+	/** Called every frame */
+	virtual void Tick( float DeltaSeconds ) override;	
 };

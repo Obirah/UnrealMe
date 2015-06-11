@@ -11,6 +11,3 @@ class AUnrealMeGameMode : public AGameMode
 public:
 	AUnrealMeGameMode(const FObjectInitializer& PCIP);
 };
-
-
-

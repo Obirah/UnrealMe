@@ -3,12 +3,14 @@
 #pragma once
 
 #include "Animation/AnimInstance.h"
-#include "UnrealMeVRPN.h"
 #include "UnrealMeKinectV2Connector.h"
 #include "UnrealMeTrackingSystemHelper.h"
 #include "UnrealMeVRPNConnector.h"
 #include "UnrealMeAnimInstance.generated.h"
 
+/**
+ * Approach for future improvement, create such enums to replace joint ids.
+ */
 UENUM(BlueprintType)
 enum class EJointRotationType
 {
@@ -33,7 +35,8 @@ enum class EJointRotationType
 };
 
 /**
- * 
+ * Base anim instance class for UnrealMe, provides the basic logic to access tracking data
+ * for animations - extendable via Blueprint.
  */
 UCLASS(transient, Blueprintable, hideCategories = AnimInstance, BlueprintType)
 class UNREALME_API UUnrealMeAnimInstance : public UAnimInstance
@@ -46,12 +49,16 @@ public:
 	UUnrealMeAnimInstance(const FObjectInitializer& PCIP);
 	APawn* iOwningPawn;	
 
+	/** Flag indicating whether VRPN is used. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	bool iVrpn;
 
+	/** Flag indicating whether pure rotations (instead of rotations 
+	calculated from relative locations) should be used */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	bool SkelControl_UsePureRotations;
 
+	/* Spine/neck rotations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_SpineBasePureRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
@@ -78,6 +85,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_NeckRot;
 
+	/* Left arm rotations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftUpperarmRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
@@ -85,11 +93,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftHandRot;
 
+	/* Left thumb and finger rotations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftThumbRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftHandTipRot;
 
+	/* Right arm rotations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightUpperarmRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
@@ -97,11 +107,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightHandRot;
 
+	/* Right thumb and finger rotations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightThumbRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightHandTipRot;
 
+	/* Left leg rotations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftThighRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
@@ -109,6 +121,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_LeftFootRot;
 
+	/* Right leg rotations */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightThighRot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
@@ -116,21 +129,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UnrealMeAnimation)
 	FRotator SkelControl_RightFootRot;
 
-	/* Update the rotation variables with the pure rotations of the joints stemming from a quaternion rotation */
+	/** Update the rotation variables with the pure rotations of the joints stemming from a quaternion rotation */
 	virtual void updateRotations();
-	/* Update the rotation variables with rotations calculated from relative joint positions */
+	/** Update the rotation variables with rotations calculated from relative joint positions */
 	virtual void updateRotationsByPositions();
 
 	virtual void updateRotationsVRPN();
-	/* Update the rotation variables with rotations calculated from relative joint positions */
+	/** Update the rotation variables with rotations calculated from relative joint positions */
 	virtual void updateRotationsByPositionsVRPN();
 
+	/** Continuation of the enum at the top of this file - example how enums could be used to access joints. */
 	UFUNCTION(BlueprintCallable, Category = UnrealMeAnimation)
 	static FRotator getJointRotation(EJointRotationType aJoint);
 
-	/* Override the AnimInstance's function that is similar to the PostInitializeComponents event. */
+	/** Override the AnimInstance's function that is similar to the PostInitializeComponents event. */
 	virtual void NativeInitializeAnimation() override;
 
-	/* Override the AnimInstance's function that is similar to the tick event. */
+	/** Override the AnimInstance's function that is similar to the tick event. */
 	virtual void NativeUpdateAnimation(float aDeltaTime) override;
 };

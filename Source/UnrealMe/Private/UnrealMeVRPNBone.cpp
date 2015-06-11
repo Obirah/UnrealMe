@@ -9,6 +9,7 @@ UnrealMeVRPNBone::UnrealMeVRPNBone()
 
 UnrealMeVRPNBone::UnrealMeVRPNBone(int aBoneId){
 	iId = aBoneId;
+
 	for (int i = 0; i < 4; i++){
 		if (i < 3){
 			iCurrPos[i] = 0;
