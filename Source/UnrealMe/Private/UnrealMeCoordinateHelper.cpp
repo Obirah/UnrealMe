@@ -3,6 +3,9 @@
 #include "UnrealMe.h"
 #include "UnrealMeCoordinateHelper.h"
 
+/* Factor to convert the metric Kinect values to Unreal units (= cm) */
+static const int KINECT_TO_UNREAL_FACTOR = 100;
+
 CameraSpacePoint UUnrealMeCoordinateHelper::getRelativePosition(CameraSpacePoint aTorso, CameraSpacePoint aOtherJoint)
 {
 	CameraSpacePoint tBack = CameraSpacePoint();
@@ -16,7 +19,7 @@ CameraSpacePoint UUnrealMeCoordinateHelper::getRelativePosition(CameraSpacePoint
 
 FVector UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(CameraSpacePoint aPosition)
 {
-	return FVector(aPosition.Z * 100, aPosition.X * -100, aPosition.Y * -100);
+	return FVector(aPosition.Z * KINECT_TO_UNREAL_FACTOR, aPosition.X * -KINECT_TO_UNREAL_FACTOR, aPosition.Y * -KINECT_TO_UNREAL_FACTOR);
 }
 
 FVector UUnrealMeCoordinateHelper::convertPositionToUnrealSpace(float aX, float aY, float aZ)
@@ -34,9 +37,9 @@ CameraSpacePoint UUnrealMeCoordinateHelper::convertPositionToKinectSpace(FVector
 {
 	CameraSpacePoint tBack = CameraSpacePoint();
 
-	tBack.X = aPosition.Y / -100;
-	tBack.Y = aPosition.Z / -100;
-	tBack.Z = aPosition.X / 100;
+	tBack.X = aPosition.Y / -KINECT_TO_UNREAL_FACTOR;
+	tBack.Y = aPosition.Z / -KINECT_TO_UNREAL_FACTOR;
+	tBack.Z = aPosition.X / KINECT_TO_UNREAL_FACTOR;
 
 	return tBack;
 }
